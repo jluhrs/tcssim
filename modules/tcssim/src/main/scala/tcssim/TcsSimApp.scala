@@ -5,7 +5,10 @@ package tcssim
 
 import cats.effect.std.Dispatcher
 import cats.effect.{ ExitCode, IO, IOApp }
+import cats.implicits.catsSyntaxEq
 import tcssim.epics.EpicsServer
+
+import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 
 object TcsSimApp extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
@@ -15,6 +18,29 @@ object TcsSimApp extends IOApp {
       db  <- TcsEpicsDB.build(srv, "tc1:")
     } yield db
 
-    r.use(_ => IO.never).as(ExitCode.Success)
+    r.use(process).as(ExitCode.Success)
   }
+
+  def process(db: TcsEpicsDB[IO]): IO[Unit] =
+    db.commands.apply.DIR.valueStream.use { ss =>
+      ss.evalMap(_.map(carActivity(db)).getOrElse(IO.unit)).compile.drain
+    }
+
+  val BusyTime: FiniteDuration = 1.seconds
+
+  def carActivity(db: TcsEpicsDB[IO])(dir: CadDirective): IO[Unit] =
+    if (dir === CadDirective.START)
+      for {
+        clid <- db.commands.apply.CLID.getOption.map(_.getOrElse(0))
+        _    <- db.commands.apply.CLID.put(clid + 1)
+        _    <- db.commands.apply.VAL.put(clid + 1)
+        _    <- db.commands.apply.MESS.put("")
+        _    <- db.commands.car.CLID.put(clid + 1)
+        _    <- db.commands.car.OMSS.put("")
+        _    <- db.commands.car.VAL.put(CarState.BUSY)
+        _    <- IO.sleep(BusyTime)
+        _    <- db.commands.car.VAL.put(CarState.IDLE)
+      } yield ()
+    else IO.unit
+
 }

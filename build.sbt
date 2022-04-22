@@ -24,5 +24,6 @@ lazy val tcssim = project.in(file("./modules/tcssim"))
       CatsEffect.value,
       Fs2
     ) ++ LucumaCore.value ++ MUnit.value,
-    Test / parallelExecution := false
+    Test / parallelExecution := false,
+    reStart / mainClass := Some("tcssim.TcsSimApp")
   ).dependsOn(epics)
