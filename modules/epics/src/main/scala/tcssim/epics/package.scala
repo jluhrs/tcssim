@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2021 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package tcssim
@@ -92,7 +92,8 @@ package object epics {
     override def toEpicsVal(v: Array[T]): DBR_TIME_LABELS_Enum = new DBR_TIME_LABELS_Enum(
       v.map(enumerated.all.indexOf(_).toShort)
     )
-    override def fromEpicsValue(v: DBR_Enum): Array[T]         = v.getEnumValue.map(enumerated.all(_))
+    override def fromEpicsValue(v: DBR_Enum): Array[T]         =
+      v.getEnumValue.map(i => enumerated.all(i.toInt))
     override def extractOption(dbr: DBR): Option[Array[T]]     = dbr match {
       case x: DBR_TIME_LABELS_Enum => fromEpicsValue(x).some
       case _                       => none

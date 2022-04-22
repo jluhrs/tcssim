@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2021 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package tcssim.epics
@@ -54,15 +54,15 @@ class MemoryPV1Spec extends CatsEffectSuite {
 
     epicsServer.test(s"Monitor $typeName channel") { srv =>
       assertIOBoolean(
-        srv
-          .createPV1[T]("dummy", init)
-          .use { x =>
-            x.valueStream.flatMap { s =>
-              writeSeq.map(x.put).sequence *>
-                s.take(writeSeq.length).compile.toList.map(_.flattenOption)
-            }
-          }
-          .map(r => r.forall(writeSeq.contains) && writeSeq.forall(r.contains))
+        (
+          for {
+            pv <- srv.createPV1[T]("dummy", init)
+            s  <- pv.valueStream
+          } yield (pv, s)
+        ).use { case (x, s) =>
+          writeSeq.map(x.put).sequence *>
+            s.take(writeSeq.length.toLong).compile.toList.map(_.flattenOption)
+        }.map(r => r.forall(writeSeq.contains) && writeSeq.forall(r.contains))
       )
     }
   }
