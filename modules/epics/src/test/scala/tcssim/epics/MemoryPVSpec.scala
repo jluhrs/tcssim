@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2021 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package tcssim.epics
@@ -54,13 +54,13 @@ class MemoryPVSpec extends CatsEffectSuite {
     epicsServer.test(s"Monitor $typeName channel") { srv =>
       val checkVal = writeSeq.map(_.toSeq)
       assertIOBoolean(
-        srv
-          .createPV[T]("dummy", init)
-          .use { x =>
-            x.valueStream.flatMap { s =>
-              writeSeq.map(x.put).sequence *>
-                s.take(writeSeq.length).compile.toList.map(_.map(_.toSeq))
-            }
+        (for {
+          pv <- srv.createPV[T]("dummy", init)
+          s  <- pv.valueStream
+        } yield (pv, s))
+          .use { case (x, s) =>
+            writeSeq.map(x.put).sequence *>
+              s.take(writeSeq.length.toLong).compile.toList.map(_.map(_.toSeq))
           }
           .map(r => r.forall(checkVal.contains) && checkVal.forall(r.contains))
       )
