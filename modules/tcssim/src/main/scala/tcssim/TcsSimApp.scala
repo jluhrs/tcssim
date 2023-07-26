@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package tcssim
@@ -19,8 +19,8 @@ object TcsSimApp extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     val r = for {
       _   <- Resource.eval(printBanner)
-      dsp <- Dispatcher[IO]
-      srv <- EpicsServer.start(dsp)
+      dsp <- Dispatcher.parallel[IO]
+      srv <- EpicsServer.start[IO](dsp)
       db  <- TcsEpicsDB.build(srv, "tc1:")
     } yield db
 

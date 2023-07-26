@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package tcssim
@@ -10,9 +10,9 @@ import tcssim.epics.MemoryPV.ToDBRType
 
 import scala.reflect.ClassTag
 
-package object epics {
+package epics {
 
-  implicit val byteDBRType: ToDBRType[Byte] = new ToDBRType[Byte] {
+  given ToDBRType[Byte] = new ToDBRType[Byte] {
     override type Dbr = DBR_Byte
     override val dbrType: DBRType                             = DBRType.BYTE
     override def buildDBR(): DBR_TIME_Byte                    = new DBR_TIME_Byte()
@@ -24,7 +24,7 @@ package object epics {
     }
   }
 
-  implicit val shortDBRType: ToDBRType[Short] = new ToDBRType[Short] {
+  given ToDBRType[Short] = new ToDBRType[Short] {
     override type Dbr = DBR_Short
     override val dbrType: DBRType                              = DBRType.SHORT
     override def buildDBR(): DBR_TIME_Short                    = new DBR_TIME_Short()
@@ -36,7 +36,7 @@ package object epics {
     }
   }
 
-  implicit val intDBRType: ToDBRType[Int] = new ToDBRType[Int] {
+  given ToDBRType[Int] = new ToDBRType[Int] {
     override type Dbr = DBR_Int
     override val dbrType: DBRType                            = DBRType.INT
     override def buildDBR(): DBR_TIME_Int                    = new DBR_TIME_Int()
@@ -48,7 +48,7 @@ package object epics {
     }
   }
 
-  implicit val floatDBRType: ToDBRType[Float] = new ToDBRType[Float] {
+  given ToDBRType[Float] = new ToDBRType[Float] {
     override type Dbr = DBR_Float
     override val dbrType: DBRType                              = DBRType.FLOAT
     override def buildDBR(): DBR_TIME_Float                    = new DBR_TIME_Float()
@@ -60,7 +60,7 @@ package object epics {
     }
   }
 
-  implicit val doubleDBRType: ToDBRType[Double] = new ToDBRType[Double] {
+  given ToDBRType[Double] = new ToDBRType[Double] {
     override type Dbr = DBR_Double
     override val dbrType: DBRType                               = DBRType.DOUBLE
     override def buildDBR(): DBR_TIME_Double                    = new DBR_TIME_Double()
@@ -72,7 +72,7 @@ package object epics {
     }
   }
 
-  implicit val stringDBRType: ToDBRType[String] = new ToDBRType[String] {
+  given ToDBRType[String] = new ToDBRType[String] {
     override type Dbr = DBR_String
     override val dbrType: DBRType                               = DBRType.STRING
     override def buildDBR(): DBR_TIME_String                    = new DBR_TIME_String()
@@ -84,7 +84,7 @@ package object epics {
     }
   }
 
-  implicit def enumeratedDBRType[T: Enumerated: ClassTag]: ToDBRType[T] = new ToDBRType[T] {
+  given enumeratedDBRType[T: Enumerated: ClassTag]: ToDBRType[T] = new ToDBRType[T] {
     private val enumerated = Enumerated[T]
     override type Dbr = DBR_Enum
     override val dbrType: DBRType                              = DBRType.ENUM

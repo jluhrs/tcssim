@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package tcssim
@@ -6,6 +6,7 @@ package tcssim
 import cats.effect.kernel.Resource
 import tcssim.epics.{ EpicsServer, MemoryPV1 }
 import Beam._
+import tcssim.epics.given
 
 trait NodChopStat[F[_]] {
   val nodState: MemoryPV1[F, String]
@@ -28,7 +29,7 @@ object NodChopStat {
   val ChopThrowName: String     = "chopThrow.VAL"
   val ChopDutyCycleName: String = "chopDutyCycle.VAL"
 
-  final case class NodChopStatImpl[F[_]] private (
+  private case class NodChopStatImpl[F[_]](
     nodState:      MemoryPV1[F, String],
     chopState:     MemoryPV1[F, String],
     chopBeam:      MemoryPV1[F, Beam],

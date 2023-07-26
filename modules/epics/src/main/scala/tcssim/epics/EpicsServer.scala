@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package tcssim.epics
@@ -29,7 +29,7 @@ object EpicsServer {
     dispatcher: Dispatcher[F],
     server:     DefaultServerImpl
   ) extends EpicsServer[F] {
-    implicit val d = dispatcher
+    given Dispatcher[F] = dispatcher
     override def createPV[T: ToDBRType](name: String, init: Array[T]): Resource[F, MemoryPV[F, T]] =
       // MemoryPV.build(server, name, init)
       for {

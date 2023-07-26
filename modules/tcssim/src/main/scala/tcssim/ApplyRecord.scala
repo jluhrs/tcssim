@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package tcssim
@@ -6,6 +6,7 @@ package tcssim
 import cats.effect.Resource
 import tcssim.epics._
 import CadDirective._
+import tcssim.epics.given
 
 trait ApplyRecord[F[_]] extends Product with Serializable {
   val DIR: MemoryPV1[F, CadDirective]
@@ -20,7 +21,7 @@ object ApplyRecord {
   val ClidSuffix: String = ".CLID"
   val MessSuffix: String = ".MESS"
 
-  final case class ApplyRecordImpl[F[_]] private (
+  private case class ApplyRecordImpl[F[_]](
     DIR:  MemoryPV1[F, CadDirective],
     VAL:  MemoryPV1[F, Int],
     CLID: MemoryPV1[F, Int],
