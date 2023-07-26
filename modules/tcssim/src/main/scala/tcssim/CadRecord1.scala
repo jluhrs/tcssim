@@ -4,8 +4,10 @@
 package tcssim
 
 import cats.effect.Resource
-import tcssim.epics.{ EpicsServer, MemoryPV1 }
+import tcssim.epics.EpicsServer
+import tcssim.epics.MemoryPV1
 import tcssim.epics.given
+
 import CadUtil._
 
 trait CadRecord1[F[_]] extends CadRecord[F] {

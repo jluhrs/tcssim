@@ -4,7 +4,9 @@
 package tcssim
 
 import cats.effect.Resource
-import tcssim.epics.{ EpicsServer, MemoryPV, MemoryPV1 }
+import tcssim.epics.EpicsServer
+import tcssim.epics.MemoryPV
+import tcssim.epics.MemoryPV1
 import tcssim.epics.given
 
 sealed trait TcsSad[F[_]] {

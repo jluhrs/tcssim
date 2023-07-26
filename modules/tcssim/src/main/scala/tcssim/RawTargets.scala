@@ -4,7 +4,8 @@
 package tcssim
 
 import cats.effect.Resource
-import tcssim.epics.{ EpicsServer, MemoryPV }
+import tcssim.epics.EpicsServer
+import tcssim.epics.MemoryPV
 import tcssim.epics.given
 
 trait RawTargets[F[_]] {

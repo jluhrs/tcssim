@@ -4,7 +4,8 @@
 package tcssim
 
 import cats.effect.kernel.Resource
-import tcssim.epics.{ EpicsServer, MemoryPV1 }
+import tcssim.epics.EpicsServer
+import tcssim.epics.MemoryPV1
 import tcssim.epics.given
 
 trait RectLimits[F[_]] {

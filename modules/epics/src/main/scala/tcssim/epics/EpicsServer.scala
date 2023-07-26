@@ -3,15 +3,17 @@
 
 package tcssim.epics
 
-import cats.effect.{ Async, Resource }
+import cats.effect.Async
+import cats.effect.Resource
 import cats.effect.std.Dispatcher
 import cats.effect.syntax.all._
 import com.cosylab.epics.caj.cas.util.DefaultServerImpl
 import gov.aps.jca.JCALibrary
-import MemoryPV.ToDBRType
 import org.typelevel.log4cats.Logger
 
 import scala.reflect.ClassTag
+
+import MemoryPV.ToDBRType
 
 trait EpicsServer[F[_]] {
 

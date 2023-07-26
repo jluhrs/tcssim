@@ -4,9 +4,11 @@
 package tcssim
 
 import cats.effect.kernel.Resource
-import tcssim.epics.{ EpicsServer, MemoryPV1 }
-import Beam._
+import tcssim.epics.EpicsServer
+import tcssim.epics.MemoryPV1
 import tcssim.epics.given
+
+import Beam._
 
 trait NodChopStat[F[_]] {
   val nodState: MemoryPV1[F, String]

@@ -4,9 +4,10 @@
 package tcssim.epics
 
 import cats.Functor
-import cats.syntax.all._
-import cats.effect.{ Async, Resource }
+import cats.effect.Async
+import cats.effect.Resource
 import cats.effect.std.Dispatcher
+import cats.syntax.all._
 import com.cosylab.epics.caj.cas.util.DefaultServerImpl
 import fs2.Stream
 import tcssim.epics.MemoryPV.ToDBRType

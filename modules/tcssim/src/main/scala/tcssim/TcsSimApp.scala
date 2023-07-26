@@ -3,14 +3,18 @@
 
 package tcssim
 
+import cats.effect.ExitCode
+import cats.effect.IO
+import cats.effect.IOApp
+import cats.effect.Resource
 import cats.effect.std.Dispatcher
-import cats.effect.{ ExitCode, IO, IOApp, Resource }
 import cats.implicits.catsSyntaxEq
-import tcssim.epics.EpicsServer
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
+import tcssim.epics.EpicsServer
 
-import scala.concurrent.duration.{ DurationInt, FiniteDuration }
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.FiniteDuration
 
 object TcsSimApp extends IOApp {
 
