@@ -24,7 +24,7 @@ object Settings {
     val log4s    = "1.10.0"
     val log4cats = "2.5.0"
     val logback  = "1.4.8"
-    val janino   = "3.1.9"
+    val janino   = "3.1.10"
   }
 
   val MUnit = Def.setting(
