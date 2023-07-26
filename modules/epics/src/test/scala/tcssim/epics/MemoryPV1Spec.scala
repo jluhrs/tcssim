@@ -7,18 +7,20 @@ import cats.effect.IO
 import cats.effect.std.Dispatcher
 import cats.syntax.all._
 import munit.CatsEffectSuite
-import MemoryPV.ToDBRType
+import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.noop.NoOpLogger
 
 import scala.reflect.ClassTag
 
+import MemoryPV.ToDBRType
+
 class MemoryPV1Spec extends CatsEffectSuite {
 
-  private implicit def logger = NoOpLogger.impl[IO]
+  private given Logger[IO] = NoOpLogger.impl[IO]
 
   private val epicsServer = ResourceFixture {
     for {
-      d <- Dispatcher[IO]
+      d <- Dispatcher.parallel[IO]
       s <- EpicsServer.start(d)
     } yield s
   }
