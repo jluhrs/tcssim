@@ -18,7 +18,8 @@ lazy val epics = project
       Fs2,
       Log4CatsNoop.value
     ) ++ LucumaCore.value ++ MUnit.value,
-    Test / parallelExecution := false
+    Test / parallelExecution := false,
+    test                     := {}
   )
 
 lazy val tcssim = project
