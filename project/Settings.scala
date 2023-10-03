@@ -5,7 +5,7 @@ object Settings {
 
   object LibraryVersion {
     // Scala libraries
-    lazy val catsEffect = "3.5.1"
+    lazy val catsEffect = "3.5.2"
     lazy val cats       = "2.9.0"
     lazy val mouse      = "1.0.7"
     lazy val fs2        = "3.7.0"
@@ -19,7 +19,7 @@ object Settings {
     lazy val jca = "2.4.6"
 
     // Lucuma
-    lazy val lucumaCore = "0.82.0"
+    lazy val lucumaCore = "0.86.1"
 
     val slf4j    = "2.0.7"
     val log4s    = "1.10.0"
