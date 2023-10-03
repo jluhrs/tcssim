@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package tcssim
@@ -24,6 +24,7 @@ trait TcsCommands[F[_]] {
   val nodchopCmds: NodChopCmds[F]
   val carouselModeCmd: CadRecord1[F]
   val mountCmds: MountCmds[F]
+  val rotatorCmds: RotatorCmds[F]
 }
 
 object TcsCommands {
@@ -31,7 +32,7 @@ object TcsCommands {
   val CarSuffix: String        = "applyC"
   val CarouselModeName: String = "carouselMode"
 
-  final case class TcsCommandsImpl[F[_]] private (
+  private case class TcsCommandsImpl[F[_]](
     apply:               ApplyRecord[F],
     car:                 CarRecord[F],
     wfsCmds:             WfsCommands[F],
@@ -48,7 +49,8 @@ object TcsCommands {
     configCmds:          ConfigCmds[F],
     nodchopCmds:         NodChopCmds[F],
     carouselModeCmd:     CadRecord1[F],
-    mountCmds:           MountCmds[F]
+    mountCmds:           MountCmds[F],
+    rotatorCmds:         RotatorCmds[F]
   ) extends TcsCommands[F]
 
   def build[F[_]](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] = for {
@@ -69,6 +71,7 @@ object TcsCommands {
     ncc   <- NodChopCmds.build(server, top)
     cm    <- CadRecord1.build(server, top + CarouselModeName)
     mc    <- MountCmds.build(server, top)
+    rc    <- RotatorCmds.build(server, top)
   } yield TcsCommandsImpl(apply,
                           car,
                           wfsc,
@@ -85,6 +88,7 @@ object TcsCommands {
                           cfgc,
                           ncc,
                           cm,
-                          mc
+                          mc,
+                          rc
   )
 }
