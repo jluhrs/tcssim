@@ -8,6 +8,8 @@ import tcssim.epics.EpicsServer
 
 trait RotatorCmds[F[_]] {
   val park: CadRecord[F]
+  val stop: CadRecord2[F]
+  val move: CadRecord1[F]
 }
 
 object RotatorCmds {
@@ -16,10 +18,10 @@ object RotatorCmds {
   private val rotatorStopSuffix: String = "rotStop"
   private val rotatorMove: String       = "rotMove"
 
-  case class RotatorCmdsImpl[F[_]] private (
-    park: CadRecord[F],
-    stop: CadRecord2[F],
-    move: CadRecord1[F]
+  private case class RotatorCmdsImpl[F[_]](
+    override val park: CadRecord[F],
+    override val stop: CadRecord2[F],
+    override val move: CadRecord1[F]
   ) extends RotatorCmds[F]
 
   def build[F[_]](server: EpicsServer[F], top: String): Resource[F, RotatorCmds[F]] = for {
