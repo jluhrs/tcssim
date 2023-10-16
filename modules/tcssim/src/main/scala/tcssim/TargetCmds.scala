@@ -3,6 +3,7 @@
 
 package tcssim
 
+import cats.Applicative
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -17,6 +18,8 @@ trait TargetCmds[F[_]] {
   val g2: CadRecord12[F]
   val g3: CadRecord12[F]
   val g4: CadRecord12[F]
+  
+  def cads: List[CadRecord[F]]
 }
 
 object TargetCmds {
@@ -42,9 +45,22 @@ object TargetCmds {
     g2:      CadRecord12[F],
     g3:      CadRecord12[F],
     g4:      CadRecord12[F]
-  ) extends TargetCmds[F]
-
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, TargetCmds[F]] = for {
+  ) extends TargetCmds[F]:
+    override def cads: List[CadRecord[F]] =
+      List(
+        sourceA,
+        sourceB,
+        sourceC,
+        pwfs1,
+        pwfs2,
+        oiwfs,
+        g1,
+        g2,
+        g3,
+        g4
+      )
+      
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TargetCmds[F]] = for {
     sourcea <- CadRecord12.build(server, top + SourceASuffix)
     sourceb <- CadRecord12.build(server, top + SourceBSuffix)
     sourcec <- CadRecord12.build(server, top + SourceCSuffix)

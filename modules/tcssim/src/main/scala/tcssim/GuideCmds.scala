@@ -3,6 +3,7 @@
 
 package tcssim
 
+import cats.Applicative
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -15,6 +16,8 @@ trait GuideCmds[F[_]] {
   val m2GuideMode: CadRecord2[F]
   val m2GuideConfig: CadRecord7[F]
   val m2GuideReset: CadRecord[F]
+
+  def cads: List[CadRecord[F]]
 }
 
 object GuideCmds {
@@ -36,9 +39,20 @@ object GuideCmds {
     m2GuideMode:   CadRecord2[F],
     m2GuideConfig: CadRecord7[F],
     m2GuideReset:  CadRecord[F]
-  ) extends GuideCmds[F]
-
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, GuideCmds[F]] = for {
+  ) extends GuideCmds[F]:
+    override def cads: List[CadRecord[F]] =
+      List(
+        m1Guide,
+        m1GuideConfig,
+        mountGuide,
+        crGuide,
+        m2Guide,
+        m2GuideMode,
+        m2GuideConfig,
+        m2GuideReset
+      )
+      
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, GuideCmds[F]] = for {
     m1guide       <- CadRecord1.build(server, top + M1GuideSuffix)
     m1guideconfig <- CadRecord4.build(server, top + M1GuideConfigSuffix)
     mountguide    <- CadRecord4.build(server, top + MountGuideSuffix)

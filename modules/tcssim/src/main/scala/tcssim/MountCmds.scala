@@ -3,11 +3,14 @@
 
 package tcssim
 
+import cats.Applicative
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
 trait MountCmds[F[_]] {
   val park: CadRecord[F]
+  
+  def cads: List[CadRecord[F]]
 }
 
 object MountCmds {
@@ -15,9 +18,10 @@ object MountCmds {
 
   private case class MountCmdsImpl[F[_]](
     park: CadRecord[F]
-  ) extends MountCmds[F]
+  ) extends MountCmds[F]:
+    override def cads: List[CadRecord[F]] = List(park)
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, MountCmds[F]] = for {
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, MountCmds[F]] = for {
     park <- CadRecord.build(server, top + mountParkSuffix)
   } yield MountCmdsImpl(park)
 }

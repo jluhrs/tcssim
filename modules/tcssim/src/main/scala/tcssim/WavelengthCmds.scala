@@ -3,6 +3,7 @@
 
 package tcssim
 
+import cats.Applicative
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -18,6 +19,8 @@ trait WavelengthCmds[F[_]] {
   val g2: CadRecord1[F]
   val g3: CadRecord1[F]
   val g4: CadRecord1[F]
+  
+  def cads: List[CadRecord[F]]
 }
 
 object WavelengthCmds {
@@ -46,9 +49,23 @@ object WavelengthCmds {
     g2:      CadRecord1[F],
     g3:      CadRecord1[F],
     g4:      CadRecord1[F]
-  ) extends WavelengthCmds[F]
+  ) extends WavelengthCmds[F]:
+    override def cads: List[CadRecord[F]] =
+      List(
+        mount,
+        sourceA,
+        sourceB,
+        sourceC,
+        pwfs1,
+        pwfs2,
+        oiwfs,
+        g1,
+        g2,
+        g3,
+        g4
+      )
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, WavelengthCmds[F]] = for {
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, WavelengthCmds[F]] = for {
     mount   <- CadRecord1.build(server, top + WavelengthPrefix + MountName)
     sourcea <- CadRecord1.build(server, top + WavelengthPrefix + SourceAName)
     sourceb <- CadRecord1.build(server, top + WavelengthPrefix + SourceBName)

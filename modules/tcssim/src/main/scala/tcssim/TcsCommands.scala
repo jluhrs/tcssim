@@ -3,6 +3,7 @@
 
 package tcssim
 
+import cats.Applicative
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -25,6 +26,7 @@ trait TcsCommands[F[_]] {
   val carouselModeCmd: CadRecord1[F]
   val mountCmds: MountCmds[F]
   val rotatorCmds: RotatorCmds[F]
+  def cads: List[CadRecord[F]]
 }
 
 object TcsCommands {
@@ -32,7 +34,7 @@ object TcsCommands {
   val CarSuffix: String        = "applyC"
   val CarouselModeName: String = "carouselMode"
 
-  private case class TcsCommandsImpl[F[_]](
+  private case class TcsCommandsImpl[F[_]: Applicative](
     apply:               ApplyRecord[F],
     car:                 CarRecord[F],
     wfsCmds:             WfsCommands[F],
@@ -51,9 +53,27 @@ object TcsCommands {
     carouselModeCmd:     CadRecord1[F],
     mountCmds:           MountCmds[F],
     rotatorCmds:         RotatorCmds[F]
-  ) extends TcsCommands[F]
+  ) extends TcsCommands[F]:
+    override def cads: List[CadRecord[F]] =
+      List(
+        wfsCmds.cads,
+        guiderTrackCommands.cads,
+        offsetCmds.cads,
+        guideCmds.cads,
+        agCmds.cads,
+        gemsCmd.cads,
+        altairCmds.cads,
+        sequenceCmds.cads,
+        targetCmds.cads,
+        wavelenghtCmds.cads,
+        followCmds.cads,
+        configCmds.cads,
+        nodchopCmds.cads,
+        mountCmds.cads,
+        rotatorCmds.cads
+      ).flatten :+ carouselModeCmd
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] = for {
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] = for {
     apply <- ApplyRecord.build(server, top + ApplySuffix)
     car   <- CarRecord.build(server, top + CarSuffix)
     wfsc  <- WfsCommands.build(server, top)

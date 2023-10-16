@@ -3,21 +3,30 @@
 
 package tcssim
 
+import cats.Applicative
+import cats.syntax.all.*
+import fs2.Stream
 import cats.effect.kernel.Resource
 import tcssim.epics.EpicsServer
 
 trait TcsEpicsDB[F[_]] {
   val status: TcsSad[F]
   val commands: TcsCommands[F]
+  def process: Resource[F, List[Stream[F, Unit]]]
+  def clean: F[Unit]
 }
 
 object TcsEpicsDB {
-  private case class TcsEpicsDBImpl[F[_]](
+  private case class TcsEpicsDBImpl[F[_]: Applicative](
     status:   TcsSad[F],
     commands: TcsCommands[F]
-  ) extends TcsEpicsDB[F]
+  ) extends TcsEpicsDB[F] {
+    override def process: Resource[F, List[Stream[F, Unit]]] = commands.cads.map(_.process).sequence.map(_.flatten)
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, TcsEpicsDB[F]] = for {
+    override def clean: F[Unit] = commands.cads.map(_.clean).sequence.void
+  }
+
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TcsEpicsDB[F]] = for {
     st  <- TcsSad.build(server, top)
     cmd <- TcsCommands.build(server, top)
   } yield TcsEpicsDBImpl(st, cmd)

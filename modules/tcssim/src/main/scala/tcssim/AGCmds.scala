@@ -3,7 +3,9 @@
 
 package tcssim
 
-import cats.effect.kernel.Resource
+import cats.Applicative
+import cats.syntax.all.*
+import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
 trait AGCmds[F[_]] {
@@ -15,6 +17,8 @@ trait AGCmds[F[_]] {
   val pwfs1Probe: PwfsProbeCmds[F]
   val pwfs2Probe: PwfsProbeCmds[F]
   val oiwfsProbe: OiwfsProbeCmds[F]
+
+  def cads: List[CadRecord[F]]
 }
 
 object AGCmds {
@@ -36,9 +40,20 @@ object AGCmds {
     pwfs1Probe:       PwfsProbeCmds[F],
     pwfs2Probe:       PwfsProbeCmds[F],
     oiwfsProbe:       OiwfsProbeCmds[F]
-  ) extends AGCmds[F]
+  ) extends AGCmds[F] {
+    override def cads: List[CadRecord[F]] =
+      List(
+        scienceFold.cads,
+        hrwfs.cads,
+        aoFold.cads,
+        pwfs1Probe.cads,
+        pwfs2Probe.cads,
+        oiwfsProbe.cads
+      ).flatten ++ List(scienceFoldDatum, scienceFoldPark)
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, AGCmds[F]] = for {
+  }
+
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, AGCmds[F]] = for {
     sciencefold      <- AGMechanismCmds.build(server, top + ScienceFoldName)
     sciencefolddatum <- CadRecord.build(server, top + ScienceFoldName + DatumSuffix)
     sciencefoldpark  <- CadRecord.build(server, top + ScienceFoldName + ParkSuffix)

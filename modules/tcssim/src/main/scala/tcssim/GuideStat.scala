@@ -28,19 +28,19 @@ trait GuideStat[F[_]] {
 }
 
 object GuideStat {
-  val Pwfs1Name: String         = "drives:p1GuideConfig.VAL"
-  val Pwfs2Name: String         = "drives:p2GuideConfig.VAL"
-  val OiwfsName: String         = "drives:oiGuideConfig.VAL"
-  val AowfsName: String         = "drives:aoGuideConfig.VAL"
-  val ComaCorrectName: String   = "comaCorrect.VAL"
-  val M1GuideConfigName: String = "m1GuideConfig.VALB"
-  val AbsorbTipTiltName: String = "absorbTipTiltFlag.VAL"
-  val M1GuideStateName: String  = "im:m1GuideOn.VAL"
-  val M2GuideStateName: String  = "om:m2GuideState.VAL"
-  val UseAoName: String         = "im:AOConfigFlag.VAL"
-  val P1IntegratingName: String = "drives:p1Integrating.VAL"
-  val P2IntegratingName: String = "drives:p2Integrating.VAL"
-  val OiIntegratingName: String = "drives:oiIntegrating.VAL"
+  private val Pwfs1Name: String         = "drives:p1GuideConfig.VAL"
+  private val Pwfs2Name: String         = "drives:p2GuideConfig.VAL"
+  private val OiwfsName: String         = "drives:oiGuideConfig.VAL"
+  private val AowfsName: String         = "drives:aoGuideConfig.VAL"
+  private val ComaCorrectName: String   = "comaCorrect.VAL"
+  private val M1GuideConfigName: String = "m1GuideConfig.VALB"
+  private val AbsorbTipTiltName: String = "absorbTipTiltFlag.VAL"
+  private val M1GuideStateName: String  = "im:m1GuideOn.VAL"
+  private val M2GuideStateName: String  = "om:m2GuideState.VAL"
+  private val UseAoName: String         = "im:AOConfigFlag.VAL"
+  private val P1IntegratingName: String = "drives:p1Integrating.VAL"
+  private val P2IntegratingName: String = "drives:p2Integrating.VAL"
+  private val OiIntegratingName: String = "drives:oiIntegrating.VAL"
 
   private case class GuideStatImpl[F[_]](
     pwfs1:         MemoryPV1[F, String],

@@ -3,14 +3,18 @@
 
 package tcssim
 
+import cats.syntax.all.*
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.effect.IOApp
 import cats.effect.Resource
 import cats.effect.std.Dispatcher
 import cats.implicits.catsSyntaxEq
+import fs2.Stream
+import monocle.Getter
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
+import tcssim.behavior.{Behavior, TargetBehavior}
 import tcssim.epics.EpicsServer
 
 import scala.concurrent.duration.DurationInt
@@ -32,9 +36,9 @@ object TcsSimApp extends IOApp {
   }
 
   def process(db: TcsEpicsDB[IO]): IO[Unit] =
-    db.commands.apply.DIR.valueStream.use { ss =>
-      ss.evalMap(_.map(carActivity(db)).getOrElse(IO.unit)).compile.drain
-    }
+    (db.process, db.commands.apply.DIR.valueStream.map(_.evalMap(_.map(carActivity(db)).getOrElse(IO.unit))))
+      .mapN{_ :+ _}
+      .use { Stream.emits[IO, Stream[IO, Unit]](_).parJoinUnbounded.compile.drain }
 
   val BusyTime: FiniteDuration = 1.seconds
 
@@ -48,6 +52,8 @@ object TcsSimApp extends IOApp {
         _    <- db.commands.car.CLID.put(clid + 1)
         _    <- db.commands.car.OMSS.put("")
         _    <- db.commands.car.VAL.put(CarState.BUSY)
+        _    <- runBehaviors(db)
+        _    <- db.clean
         _    <- IO.sleep(BusyTime)
         _    <- db.commands.car.VAL.put(CarState.IDLE)
       } yield ()
@@ -64,5 +70,22 @@ object TcsSimApp extends IOApp {
 """
     Logger[F].info(banner)
   }
+
+
+  private val behaviors: List[Behavior[IO]] = List(
+    TargetBehavior[IO](Getter(_.commands.targetCmds.sourceA), Getter(_.status.targets.sourceATarget)),
+    TargetBehavior[IO](Getter(_.commands.targetCmds.sourceB), Getter(_.status.targets.sourceBTarget)),
+    TargetBehavior[IO](Getter(_.commands.targetCmds.sourceC), Getter(_.status.targets.sourceCTarget)),
+    TargetBehavior[IO](Getter(_.commands.targetCmds.pwfs1), Getter(_.status.targets.pwfs1Target)),
+    TargetBehavior[IO](Getter(_.commands.targetCmds.pwfs2), Getter(_.status.targets.pwfs2Target)),
+    TargetBehavior[IO](Getter(_.commands.targetCmds.oiwfs), Getter(_.status.targets.oiwfsTarget)),
+    TargetBehavior[IO](Getter(_.commands.targetCmds.g1), Getter(_.status.targets.g1Target)),
+    TargetBehavior[IO](Getter(_.commands.targetCmds.g2), Getter(_.status.targets.g2Target)),
+    TargetBehavior[IO](Getter(_.commands.targetCmds.g3), Getter(_.status.targets.g3Target)),
+    TargetBehavior[IO](Getter(_.commands.targetCmds.g4), Getter(_.status.targets.g4Target))
+  )
+
+
+  private def runBehaviors(db: TcsEpicsDB[IO]): IO[Unit] = behaviors.map(_.process(db)).parSequence.void
 
 }

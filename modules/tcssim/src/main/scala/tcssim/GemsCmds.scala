@@ -3,7 +3,9 @@
 
 package tcssim
 
-import cats.effect.kernel.Resource
+import cats.Applicative
+import cats.syntax.all.*
+import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
 trait GemsCmds[F[_]] {
@@ -14,6 +16,7 @@ trait GemsCmds[F[_]] {
   val odgw2Park: CadRecord1[F]
   val odgw3Park: CadRecord1[F]
   val odgw4Park: CadRecord1[F]
+  def cads: List[CadRecord[F]]
 }
 
 object GemsCmds {
@@ -33,9 +36,21 @@ object GemsCmds {
     odgw2Park:  CadRecord1[F],
     odgw3Park:  CadRecord1[F],
     odgw4Park:  CadRecord1[F]
-  ) extends GemsCmds[F]
+  ) extends GemsCmds[F] {
+    override def cads: List[CadRecord[F]] =
+      List(
+        ngsPr1Ctrl,
+        ngsPr2Ctrl,
+        ngsPr3Ctrl,
+        odgw1Park,
+        odgw2Park,
+        odgw3Park,
+        odgw4Park
+      )
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, GemsCmds[F]] = for {
+  }
+
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, GemsCmds[F]] = for {
     ngspr1ctrl <- CadRecord1.build(server, top + NgsPr1CtrlSuffix)
     ngspr2ctrl <- CadRecord1.build(server, top + NgsPr2CtrlSuffix)
     ngspr3ctrl <- CadRecord1.build(server, top + NgsPr3CtrlSuffix)

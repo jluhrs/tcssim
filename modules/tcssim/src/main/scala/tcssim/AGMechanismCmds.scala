@@ -3,6 +3,8 @@
 
 package tcssim
 
+import cats.Applicative
+import cats.syntax.all.*
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -10,6 +12,8 @@ trait AGMechanismCmds[F[_]] {
   val move: CadRecord1[F]
   val park: CadRecord[F]
   val datum: CadRecord[F]
+
+  def cads: List[CadRecord[F]]
 }
 
 object AGMechanismCmds {
@@ -20,9 +24,17 @@ object AGMechanismCmds {
     move:  CadRecord1[F],
     park:  CadRecord[F],
     datum: CadRecord[F]
-  ) extends AGMechanismCmds[F]
+  ) extends AGMechanismCmds[F] {
+    override def cads: List[CadRecord[F]] =
+      List(
+        move,
+        park,
+        datum
+      )
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, AGMechanismCmds[F]] = for {
+  }
+
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, AGMechanismCmds[F]] = for {
     move  <- CadRecord1.build(server, top)
     park  <- CadRecord.build(server, top + ParkSuffix)
     datum <- CadRecord.build(server, top + DatumSuffix)

@@ -3,6 +3,7 @@
 
 package tcssim
 
+import cats.Applicative
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -10,6 +11,8 @@ trait NodChopCmds[F[_]] {
   val nod: CadRecord1[F]
   val chop: CadRecord2[F]
   val beam: CadRecord1[F]
+  
+  def cads: List[CadRecord[F]]
 }
 
 object NodChopCmds {
@@ -21,9 +24,15 @@ object NodChopCmds {
     nod:  CadRecord1[F],
     chop: CadRecord2[F],
     beam: CadRecord1[F]
-  ) extends NodChopCmds[F]
+  ) extends NodChopCmds[F]:
+    override def cads: List[CadRecord[F]] =
+      List(
+        nod,
+        chop,
+        beam
+      )
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, NodChopCmds[F]] = for {
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, NodChopCmds[F]] = for {
     nod  <- CadRecord1.build(server, top + NodName)
     chop <- CadRecord2.build(server, top + ChopName)
     beam <- CadRecord1.build(server, top + BeamName)

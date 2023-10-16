@@ -3,6 +3,7 @@
 
 package tcssim
 
+import cats.Applicative
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 import tcssim.epics.MemoryPV1
@@ -10,20 +11,16 @@ import tcssim.epics.given
 
 import CadUtil._
 
-trait CadRecord7[F[_]] extends CadRecord[F] {
-  val inputA: MemoryPV1[F, String]
-  val inputB: MemoryPV1[F, String]
-  val inputC: MemoryPV1[F, String]
-  val inputD: MemoryPV1[F, String]
-  val inputE: MemoryPV1[F, String]
-  val inputF: MemoryPV1[F, String]
+trait CadRecord7[F[_]] extends CadRecord6[F] {
   val inputG: MemoryPV1[F, String]
+  override def inputs: List[MemoryPV1[F, String]] = super.inputs :+ inputG
 }
 
 object CadRecord7 {
 
-  private case class CadRecord7Impl[F[_]](
+  private case class CadRecord7Impl[F[_]: Applicative](
     DIR:    MemoryPV1[F, CadDirective],
+    override val MARK: MemoryPV1[F, Int],
     inputA: MemoryPV1[F, String],
     inputB: MemoryPV1[F, String],
     inputC: MemoryPV1[F, String],
@@ -31,10 +28,11 @@ object CadRecord7 {
     inputE: MemoryPV1[F, String],
     inputF: MemoryPV1[F, String],
     inputG: MemoryPV1[F, String]
-  ) extends CadRecord7[F]
+  ) extends CadRecord.CadRecordImpl[F] with CadRecord7[F]
 
-  def build[F[_]](server: EpicsServer[F], cadName: String): Resource[F, CadRecord7[F]] = for {
+  def build[F[_]: Applicative](server: EpicsServer[F], cadName: String): Resource[F, CadRecord7[F]] = for {
     dir <- buildDir(server, cadName)
+    mark <- server.createPV1(cadName + MarkSuffix, 0)
     a   <- server.createPV1(cadName + InputASuffix, "")
     b   <- server.createPV1(cadName + InputBSuffix, "")
     c   <- server.createPV1(cadName + InputCSuffix, "")
@@ -42,5 +40,6 @@ object CadRecord7 {
     e   <- server.createPV1(cadName + InputESuffix, "")
     f   <- server.createPV1(cadName + InputFSuffix, "")
     g   <- server.createPV1(cadName + InputGSuffix, "")
-  } yield CadRecord7Impl(dir, a, b, c, d, e, f, g)
+  } yield CadRecord7Impl(dir, mark, a, b, c, d, e, f, g)
+  
 }

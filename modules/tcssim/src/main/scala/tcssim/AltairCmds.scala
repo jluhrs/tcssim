@@ -3,7 +3,9 @@
 
 package tcssim
 
-import cats.effect.kernel.Resource
+import cats.Applicative
+import cats.syntax.all.*
+import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
 trait AltairCmds[F[_]] {
@@ -24,6 +26,8 @@ trait AltairCmds[F[_]] {
   val aoLgsTTFSource: CadRecord2[F]
   val aoFLens: CadRecord1[F]
   val aoStats: CadRecord4[F]
+
+  def cads: List[CadRecord[F]]
 }
 
 object AltairCmds {
@@ -64,9 +68,31 @@ object AltairCmds {
     aoLgsTTFSource: CadRecord2[F],
     aoFLens:        CadRecord1[F],
     aoStats:        CadRecord4[F]
-  ) extends AltairCmds[F]
+  ) extends AltairCmds[F] {
+    override def cads: List[CadRecord[F]] =
+      List(
+        configForAo,
+        aoDeployAdc,
+        aoMoveGim,
+        aoMoveAdc,
+        aoPrepareCm,
+        aoFlatten,
+        aoCentreWfs,
+        aoCorrect,
+        aoEntShutter,
+        aoExitShutter,
+        aoDmVolt,
+        aoDatum,
+        aoPark,
+        aoOiwfsSource,
+        aoLgsTTFSource,
+        aoFLens,
+        aoStats
+      )
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, AltairCmds[F]] = for {
+  }
+
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, AltairCmds[F]] = for {
     configforao    <- CadRecord1.build(server, top + ConfigForAoSuffix)
     aodeployadc    <- CadRecord1.build(server, top + AoDeployAdcSuffix)
     aomovegim      <- CadRecord3.build(server, top + AoMoveGimSuffix)
