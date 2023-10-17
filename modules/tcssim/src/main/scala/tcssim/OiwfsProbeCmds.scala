@@ -44,7 +44,10 @@ object OiwfsProbeCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], name: String): Resource[F, OiwfsProbeCmds[F]] = for {
+  def build[F[_]: Applicative](
+    server: EpicsServer[F],
+    name:   String
+  ): Resource[F, OiwfsProbeCmds[F]] = for {
     park       <- CadRecord.build(server, name + ParkSuffix)
     datum      <- CadRecord.build(server, name + DatumSuffix)
     filter     <- AGMechanismCmds.build(server, name + FilterSuffix)

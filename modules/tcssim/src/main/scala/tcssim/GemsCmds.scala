@@ -50,20 +50,21 @@ object GemsCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, GemsCmds[F]] = for {
-    ngspr1ctrl <- CadRecord1.build(server, top + NgsPr1CtrlSuffix)
-    ngspr2ctrl <- CadRecord1.build(server, top + NgsPr2CtrlSuffix)
-    ngspr3ctrl <- CadRecord1.build(server, top + NgsPr3CtrlSuffix)
-    odgw1park  <- CadRecord1.build(server, top + Odgw1ParkSuffix)
-    odgw2park  <- CadRecord1.build(server, top + Odgw2ParkSuffix)
-    odgw3park  <- CadRecord1.build(server, top + Odgw3ParkSuffix)
-    odgw4park  <- CadRecord1.build(server, top + Odgw4ParkSuffix)
-  } yield GemsCmdsImpl(ngspr1ctrl,
-                       ngspr2ctrl,
-                       ngspr3ctrl,
-                       odgw1park,
-                       odgw2park,
-                       odgw3park,
-                       odgw4park
-  )
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, GemsCmds[F]] =
+    for {
+      ngspr1ctrl <- CadRecord1.build(server, top + NgsPr1CtrlSuffix)
+      ngspr2ctrl <- CadRecord1.build(server, top + NgsPr2CtrlSuffix)
+      ngspr3ctrl <- CadRecord1.build(server, top + NgsPr3CtrlSuffix)
+      odgw1park  <- CadRecord1.build(server, top + Odgw1ParkSuffix)
+      odgw2park  <- CadRecord1.build(server, top + Odgw2ParkSuffix)
+      odgw3park  <- CadRecord1.build(server, top + Odgw3ParkSuffix)
+      odgw4park  <- CadRecord1.build(server, top + Odgw4ParkSuffix)
+    } yield GemsCmdsImpl(ngspr1ctrl,
+                         ngspr2ctrl,
+                         ngspr3ctrl,
+                         odgw1park,
+                         odgw2park,
+                         odgw3park,
+                         odgw4park
+    )
 }

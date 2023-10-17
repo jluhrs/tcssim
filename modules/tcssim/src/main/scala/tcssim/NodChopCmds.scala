@@ -11,7 +11,7 @@ trait NodChopCmds[F[_]] {
   val nod: CadRecord1[F]
   val chop: CadRecord2[F]
   val beam: CadRecord1[F]
-  
+
   def cads: List[CadRecord[F]]
 }
 
@@ -32,10 +32,11 @@ object NodChopCmds {
         beam
       )
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, NodChopCmds[F]] = for {
-    nod  <- CadRecord1.build(server, top + NodName)
-    chop <- CadRecord2.build(server, top + ChopName)
-    beam <- CadRecord1.build(server, top + BeamName)
-  } yield NodChopCmdsImpl(nod, chop, beam)
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, NodChopCmds[F]] =
+    for {
+      nod  <- CadRecord1.build(server, top + NodName)
+      chop <- CadRecord2.build(server, top + ChopName)
+      beam <- CadRecord1.build(server, top + BeamName)
+    } yield NodChopCmdsImpl(nod, chop, beam)
 
 }

@@ -9,7 +9,7 @@ import tcssim.epics.EpicsServer
 
 trait MountCmds[F[_]] {
   val park: CadRecord[F]
-  
+
   def cads: List[CadRecord[F]]
 }
 
@@ -21,7 +21,8 @@ object MountCmds {
   ) extends MountCmds[F]:
     override def cads: List[CadRecord[F]] = List(park)
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, MountCmds[F]] = for {
-    park <- CadRecord.build(server, top + mountParkSuffix)
-  } yield MountCmdsImpl(park)
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, MountCmds[F]] =
+    for {
+      park <- CadRecord.build(server, top + mountParkSuffix)
+    } yield MountCmdsImpl(park)
 }

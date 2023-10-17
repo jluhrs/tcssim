@@ -15,7 +15,7 @@ trait GuiderTrackCommands[F[_]] {
   val g2: CadRecord9[F]
   val g3: CadRecord9[F]
   val g4: CadRecord9[F]
-  
+
   def cads: List[CadRecord[F]]
 }
 
@@ -49,7 +49,10 @@ object GuiderTrackCommands {
         g4
       )
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, GuiderTrackCommands[F]] = for {
+  def build[F[_]: Applicative](
+    server: EpicsServer[F],
+    top:    String
+  ): Resource[F, GuiderTrackCommands[F]] = for {
     p1 <- CadRecord9.build(server, top + ConfigPrefix + Pwfs1Name)
     p2 <- CadRecord9.build(server, top + ConfigPrefix + Pwfs2Name)
     oi <- CadRecord9.build(server, top + ConfigPrefix + OiwfsName)

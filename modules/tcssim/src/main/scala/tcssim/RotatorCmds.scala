@@ -36,10 +36,11 @@ object RotatorCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, RotatorCmds[F]] = for {
-    park <- CadRecord.build(server, top + rotatorParkSuffix)
-    stop <- CadRecord2.build(server, top + rotatorStopSuffix)
-    move <- CadRecord1.build(server, top + rotatorMove)
-  } yield RotatorCmdsImpl(park, stop, move)
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, RotatorCmds[F]] =
+    for {
+      park <- CadRecord.build(server, top + rotatorParkSuffix)
+      stop <- CadRecord2.build(server, top + rotatorStopSuffix)
+      move <- CadRecord1.build(server, top + rotatorMove)
+    } yield RotatorCmdsImpl(park, stop, move)
 
 }

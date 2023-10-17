@@ -73,42 +73,43 @@ object TcsCommands {
         rotatorCmds.cads
       ).flatten :+ carouselModeCmd
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] = for {
-    apply <- ApplyRecord.build(server, top + ApplySuffix)
-    car   <- CarRecord.build(server, top + CarSuffix)
-    wfsc  <- WfsCommands.build(server, top)
-    gtc   <- GuiderTrackCommands.build(server, top)
-    ofc   <- OffsetCmds.build(server, top)
-    gdc   <- GuideCmds.build(server, top)
-    agc   <- AGCmds.build(server, top)
-    gms   <- GemsCmds.build(server, top)
-    aoc   <- AltairCmds.build(server, top)
-    seqc  <- SequenceCmds.build(server, top)
-    tgsc  <- TargetCmds.build(server, top)
-    wvlc  <- WavelengthCmds.build(server, top)
-    folc  <- FollowCmds.build(server, top)
-    cfgc  <- ConfigCmds.build(server, top)
-    ncc   <- NodChopCmds.build(server, top)
-    cm    <- CadRecord1.build(server, top + CarouselModeName)
-    mc    <- MountCmds.build(server, top)
-    rc    <- RotatorCmds.build(server, top)
-  } yield TcsCommandsImpl(apply,
-                          car,
-                          wfsc,
-                          gtc,
-                          ofc,
-                          gdc,
-                          agc,
-                          gms,
-                          aoc,
-                          seqc,
-                          tgsc,
-                          wvlc,
-                          folc,
-                          cfgc,
-                          ncc,
-                          cm,
-                          mc,
-                          rc
-  )
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] =
+    for {
+      apply <- ApplyRecord.build(server, top + ApplySuffix)
+      car   <- CarRecord.build(server, top + CarSuffix)
+      wfsc  <- WfsCommands.build(server, top)
+      gtc   <- GuiderTrackCommands.build(server, top)
+      ofc   <- OffsetCmds.build(server, top)
+      gdc   <- GuideCmds.build(server, top)
+      agc   <- AGCmds.build(server, top)
+      gms   <- GemsCmds.build(server, top)
+      aoc   <- AltairCmds.build(server, top)
+      seqc  <- SequenceCmds.build(server, top)
+      tgsc  <- TargetCmds.build(server, top)
+      wvlc  <- WavelengthCmds.build(server, top)
+      folc  <- FollowCmds.build(server, top)
+      cfgc  <- ConfigCmds.build(server, top)
+      ncc   <- NodChopCmds.build(server, top)
+      cm    <- CadRecord1.build(server, top + CarouselModeName)
+      mc    <- MountCmds.build(server, top)
+      rc    <- RotatorCmds.build(server, top)
+    } yield TcsCommandsImpl(apply,
+                            car,
+                            wfsc,
+                            gtc,
+                            ofc,
+                            gdc,
+                            agc,
+                            gms,
+                            aoc,
+                            seqc,
+                            tgsc,
+                            wvlc,
+                            folc,
+                            cfgc,
+                            ncc,
+                            cm,
+                            mc,
+                            rc
+    )
 }

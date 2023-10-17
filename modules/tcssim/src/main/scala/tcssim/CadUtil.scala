@@ -38,16 +38,20 @@ object CadUtil {
   ): Resource[F, MemoryPV1[F, CadDirective]] =
     server.createPV1(name + DirSuffix, CadDirective.CLEAR)
 
-  def process[F[_]: Applicative](dir: MemoryPV1[F, CadDirective], mark: MemoryPV1[F, Int], inputs: List[MemoryPV1[F, String]]): Resource[F, List[Stream[F, Unit]]] =
-    (inputs.map(_.valueStream.map(_.evalMap{_.as(mark.put(1)).getOrElse(Applicative[F].unit)})) :+
+  def process[F[_]: Applicative](
+    dir:    MemoryPV1[F, CadDirective],
+    mark:   MemoryPV1[F, Int],
+    inputs: List[MemoryPV1[F, String]]
+  ): Resource[F, List[Stream[F, Unit]]] =
+    (inputs.map(
+      _.valueStream.map(_.evalMap(_.as(mark.put(1)).getOrElse(Applicative[F].unit)))
+    ) :+
       dir.valueStream.map {
         _.evalMap {
           case Some(CadDirective.MARK)  => mark.put(1)
           case Some(CadDirective.CLEAR) => mark.put(0)
-          case _ => Applicative[F].unit
+          case _                        => Applicative[F].unit
         }
-      }
-    ).sequence
-
+      }).sequence
 
 }

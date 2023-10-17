@@ -45,12 +45,13 @@ object WfsCommands {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, WfsCommands[F]] = for {
-    p1o <- CadRecord7.build(server, top + P1Prefix + ObserveCadName)
-    p1s <- CadRecord.build(server, top + P1Prefix + StopCadName)
-    p2o <- CadRecord7.build(server, top + P2Prefix + ObserveCadName)
-    p2s <- CadRecord.build(server, top + P2Prefix + StopCadName)
-    oio <- CadRecord7.build(server, top + OiPrefix + ObserveCadName)
-    ois <- CadRecord.build(server, top + OiPrefix + StopCadName)
-  } yield WfsCommandsImpl(p1o, p1s, p2o, p2s, oio, ois)
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, WfsCommands[F]] =
+    for {
+      p1o <- CadRecord7.build(server, top + P1Prefix + ObserveCadName)
+      p1s <- CadRecord.build(server, top + P1Prefix + StopCadName)
+      p2o <- CadRecord7.build(server, top + P2Prefix + ObserveCadName)
+      p2s <- CadRecord.build(server, top + P2Prefix + StopCadName)
+      oio <- CadRecord7.build(server, top + OiPrefix + ObserveCadName)
+      ois <- CadRecord.build(server, top + OiPrefix + StopCadName)
+    } yield WfsCommandsImpl(p1o, p1s, p2o, p2s, oio, ois)
 }

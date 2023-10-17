@@ -92,41 +92,42 @@ object AltairCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, AltairCmds[F]] = for {
-    configforao    <- CadRecord1.build(server, top + ConfigForAoSuffix)
-    aodeployadc    <- CadRecord1.build(server, top + AoDeployAdcSuffix)
-    aomovegim      <- CadRecord3.build(server, top + AoMoveGimSuffix)
-    aomoveadc      <- CadRecord4.build(server, top + AoMoveAdcSuffix)
-    aopreparecm    <- CadRecord6.build(server, top + AoPrepareCmSuffix)
-    aoflatten      <- CadRecord1.build(server, top + AoFlattenSuffix)
-    aocentrewfs    <- CadRecord1.build(server, top + AoCentreWfsSuffix)
-    aocorrect      <- CadRecord3.build(server, top + AoCorrectSuffix)
-    aoentshutter   <- CadRecord1.build(server, top + AoEntShutterSuffix)
-    aoexitshutter  <- CadRecord1.build(server, top + AoExitShutterSuffix)
-    aodmvolt       <- CadRecord.build(server, top + AoDmVoltSuffix)
-    aodatum        <- CadRecord1.build(server, top + AoDatumSuffix)
-    aopark         <- CadRecord1.build(server, top + AoParkSuffix)
-    aooiwfssource  <- CadRecord2.build(server, top + AoOiwfsSourceSuffix)
-    aolgsttfsource <- CadRecord2.build(server, top + AoLgsTTFSourceSuffix)
-    aoflens        <- CadRecord1.build(server, top + AoFLensSuffix)
-    aostats        <- CadRecord4.build(server, top + AoStatsSuffix)
-  } yield AltairCmdsImpl(
-    configforao,
-    aodeployadc,
-    aomovegim,
-    aomoveadc,
-    aopreparecm,
-    aoflatten,
-    aocentrewfs,
-    aocorrect,
-    aoentshutter,
-    aoexitshutter,
-    aodmvolt,
-    aodatum,
-    aopark,
-    aooiwfssource,
-    aolgsttfsource,
-    aoflens,
-    aostats
-  )
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, AltairCmds[F]] =
+    for {
+      configforao    <- CadRecord1.build(server, top + ConfigForAoSuffix)
+      aodeployadc    <- CadRecord1.build(server, top + AoDeployAdcSuffix)
+      aomovegim      <- CadRecord3.build(server, top + AoMoveGimSuffix)
+      aomoveadc      <- CadRecord4.build(server, top + AoMoveAdcSuffix)
+      aopreparecm    <- CadRecord6.build(server, top + AoPrepareCmSuffix)
+      aoflatten      <- CadRecord1.build(server, top + AoFlattenSuffix)
+      aocentrewfs    <- CadRecord1.build(server, top + AoCentreWfsSuffix)
+      aocorrect      <- CadRecord3.build(server, top + AoCorrectSuffix)
+      aoentshutter   <- CadRecord1.build(server, top + AoEntShutterSuffix)
+      aoexitshutter  <- CadRecord1.build(server, top + AoExitShutterSuffix)
+      aodmvolt       <- CadRecord.build(server, top + AoDmVoltSuffix)
+      aodatum        <- CadRecord1.build(server, top + AoDatumSuffix)
+      aopark         <- CadRecord1.build(server, top + AoParkSuffix)
+      aooiwfssource  <- CadRecord2.build(server, top + AoOiwfsSourceSuffix)
+      aolgsttfsource <- CadRecord2.build(server, top + AoLgsTTFSourceSuffix)
+      aoflens        <- CadRecord1.build(server, top + AoFLensSuffix)
+      aostats        <- CadRecord4.build(server, top + AoStatsSuffix)
+    } yield AltairCmdsImpl(
+      configforao,
+      aodeployadc,
+      aomovegim,
+      aomoveadc,
+      aopreparecm,
+      aoflatten,
+      aocentrewfs,
+      aocorrect,
+      aoentshutter,
+      aoexitshutter,
+      aodmvolt,
+      aodatum,
+      aopark,
+      aooiwfssource,
+      aolgsttfsource,
+      aoflens,
+      aostats
+    )
 }

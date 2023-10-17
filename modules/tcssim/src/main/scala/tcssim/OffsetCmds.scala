@@ -47,12 +47,13 @@ object OffsetCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, OffsetCmds[F]] = for {
-    poa  <- CadRecord2.build(server, top + OffsetPoASuffix)
-    poa1 <- CadRecord2.build(server, top + OffsetPoA1Suffix)
-    pob  <- CadRecord2.build(server, top + OffsetPoBSuffix)
-    pob1 <- CadRecord2.build(server, top + OffsetPoB1Suffix)
-    poc  <- CadRecord2.build(server, top + OffsetPoCSuffix)
-    poc1 <- CadRecord2.build(server, top + OffsetPoC1Suffix)
-  } yield OffsetCmdsImpl(poa, poa1, pob, pob1, poc, poc1)
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, OffsetCmds[F]] =
+    for {
+      poa  <- CadRecord2.build(server, top + OffsetPoASuffix)
+      poa1 <- CadRecord2.build(server, top + OffsetPoA1Suffix)
+      pob  <- CadRecord2.build(server, top + OffsetPoBSuffix)
+      pob1 <- CadRecord2.build(server, top + OffsetPoB1Suffix)
+      poc  <- CadRecord2.build(server, top + OffsetPoCSuffix)
+      poc1 <- CadRecord2.build(server, top + OffsetPoC1Suffix)
+    } yield OffsetCmdsImpl(poa, poa1, pob, pob1, poc, poc1)
 }

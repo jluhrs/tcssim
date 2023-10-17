@@ -18,7 +18,7 @@ trait TargetCmds[F[_]] {
   val g2: CadRecord12[F]
   val g3: CadRecord12[F]
   val g4: CadRecord12[F]
-  
+
   def cads: List[CadRecord[F]]
 }
 
@@ -59,17 +59,18 @@ object TargetCmds {
         g3,
         g4
       )
-      
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TargetCmds[F]] = for {
-    sourcea <- CadRecord12.build(server, top + SourceASuffix)
-    sourceb <- CadRecord12.build(server, top + SourceBSuffix)
-    sourcec <- CadRecord12.build(server, top + SourceCSuffix)
-    pwfs1   <- CadRecord12.build(server, top + Pwfs1Suffix)
-    pwfs2   <- CadRecord12.build(server, top + Pwfs2Suffix)
-    oiwfs   <- CadRecord12.build(server, top + OiwfsSuffix)
-    g1      <- CadRecord12.build(server, top + G1Suffix)
-    g2      <- CadRecord12.build(server, top + G2Suffix)
-    g3      <- CadRecord12.build(server, top + G3Suffix)
-    g4      <- CadRecord12.build(server, top + G4Suffix)
-  } yield TargetCmdsImpl(sourcea, sourceb, sourcec, pwfs1, pwfs2, oiwfs, g1, g2, g3, g4)
+
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TargetCmds[F]] =
+    for {
+      sourcea <- CadRecord12.build(server, top + SourceASuffix)
+      sourceb <- CadRecord12.build(server, top + SourceBSuffix)
+      sourcec <- CadRecord12.build(server, top + SourceCSuffix)
+      pwfs1   <- CadRecord12.build(server, top + Pwfs1Suffix)
+      pwfs2   <- CadRecord12.build(server, top + Pwfs2Suffix)
+      oiwfs   <- CadRecord12.build(server, top + OiwfsSuffix)
+      g1      <- CadRecord12.build(server, top + G1Suffix)
+      g2      <- CadRecord12.build(server, top + G2Suffix)
+      g3      <- CadRecord12.build(server, top + G3Suffix)
+      g4      <- CadRecord12.build(server, top + G4Suffix)
+    } yield TargetCmdsImpl(sourcea, sourceb, sourcec, pwfs1, pwfs2, oiwfs, g1, g2, g3, g4)
 }

@@ -55,14 +55,15 @@ object SequenceCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, SequenceCmds[F]] = for {
-    verify     <- CadRecord.build(server, top + VerifySuffix)
-    test       <- CadRecord.build(server, top + TestSuffix)
-    observe    <- CadRecord.build(server, top + ObserveSuffix)
-    endobserve <- CadRecord.build(server, top + EndObserveSuffix)
-    guide      <- CadRecord.build(server, top + GuideSuffix)
-    endguide   <- CadRecord.build(server, top + EndGuideSuffix)
-    pause      <- CadRecord.build(server, top + PauseSuffix)
-    continue   <- CadRecord.build(server, top + ContinueSuffix)
-  } yield SequenceCmdsImpl(verify, test, observe, endobserve, guide, endguide, pause, continue)
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, SequenceCmds[F]] =
+    for {
+      verify     <- CadRecord.build(server, top + VerifySuffix)
+      test       <- CadRecord.build(server, top + TestSuffix)
+      observe    <- CadRecord.build(server, top + ObserveSuffix)
+      endobserve <- CadRecord.build(server, top + EndObserveSuffix)
+      guide      <- CadRecord.build(server, top + GuideSuffix)
+      endguide   <- CadRecord.build(server, top + EndGuideSuffix)
+      pause      <- CadRecord.build(server, top + PauseSuffix)
+      continue   <- CadRecord.build(server, top + ContinueSuffix)
+    } yield SequenceCmdsImpl(verify, test, observe, endobserve, guide, endguide, pause, continue)
 }

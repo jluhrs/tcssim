@@ -75,32 +75,33 @@ object FollowCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, FollowCmds[F]] = for {
-    mnt   <- CadRecord1.build(server, top + MountSuffix)
-    cr    <- CadRecord1.build(server, top + RotatorSuffix)
-    pwfs1 <- CadRecord1.build(server, top + Pwfs1Suffix)
-    pwfs2 <- CadRecord1.build(server, top + Pwfs2Suffix)
-    oiwfs <- CadRecord1.build(server, top + OiwfsSuffix)
-    ao    <- CadRecord1.build(server, top + AoSuffix)
-    ngs1  <- CadRecord1.build(server, top + Ngs1Suffix)
-    ngs2  <- CadRecord1.build(server, top + Ngs2Suffix)
-    ngs3  <- CadRecord1.build(server, top + Ngs3Suffix)
-    odgw1 <- CadRecord1.build(server, top + Odgw1Suffix)
-    odgw2 <- CadRecord1.build(server, top + Odgw2Suffix)
-    odgw3 <- CadRecord1.build(server, top + Odgw3Suffix)
-    odgw4 <- CadRecord1.build(server, top + Odgw4Suffix)
-  } yield FollowCmdsImpl(mnt,
-                         cr,
-                         pwfs1,
-                         pwfs2,
-                         oiwfs,
-                         ao,
-                         ngs1,
-                         ngs2,
-                         ngs3,
-                         odgw1,
-                         odgw2,
-                         odgw3,
-                         odgw4
-  )
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, FollowCmds[F]] =
+    for {
+      mnt   <- CadRecord1.build(server, top + MountSuffix)
+      cr    <- CadRecord1.build(server, top + RotatorSuffix)
+      pwfs1 <- CadRecord1.build(server, top + Pwfs1Suffix)
+      pwfs2 <- CadRecord1.build(server, top + Pwfs2Suffix)
+      oiwfs <- CadRecord1.build(server, top + OiwfsSuffix)
+      ao    <- CadRecord1.build(server, top + AoSuffix)
+      ngs1  <- CadRecord1.build(server, top + Ngs1Suffix)
+      ngs2  <- CadRecord1.build(server, top + Ngs2Suffix)
+      ngs3  <- CadRecord1.build(server, top + Ngs3Suffix)
+      odgw1 <- CadRecord1.build(server, top + Odgw1Suffix)
+      odgw2 <- CadRecord1.build(server, top + Odgw2Suffix)
+      odgw3 <- CadRecord1.build(server, top + Odgw3Suffix)
+      odgw4 <- CadRecord1.build(server, top + Odgw4Suffix)
+    } yield FollowCmdsImpl(mnt,
+                           cr,
+                           pwfs1,
+                           pwfs2,
+                           oiwfs,
+                           ao,
+                           ngs1,
+                           ngs2,
+                           ngs3,
+                           odgw1,
+                           odgw2,
+                           odgw3,
+                           odgw4
+    )
 }

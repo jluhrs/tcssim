@@ -21,13 +21,15 @@ object TcsEpicsDB {
     status:   TcsSad[F],
     commands: TcsCommands[F]
   ) extends TcsEpicsDB[F] {
-    override def process: Resource[F, List[Stream[F, Unit]]] = commands.cads.map(_.process).sequence.map(_.flatten)
+    override def process: Resource[F, List[Stream[F, Unit]]] =
+      commands.cads.map(_.process).sequence.map(_.flatten)
 
     override def clean: F[Unit] = commands.cads.map(_.clean).sequence.void
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TcsEpicsDB[F]] = for {
-    st  <- TcsSad.build(server, top)
-    cmd <- TcsCommands.build(server, top)
-  } yield TcsEpicsDBImpl(st, cmd)
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TcsEpicsDB[F]] =
+    for {
+      st  <- TcsSad.build(server, top)
+      cmd <- TcsCommands.build(server, top)
+    } yield TcsEpicsDBImpl(st, cmd)
 }

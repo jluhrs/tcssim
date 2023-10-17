@@ -42,11 +42,12 @@ object ConfigCmds {
       )
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, ConfigCmds[F]] = for {
-    slew         <- CadRecord16.build(server, top + SlewName)
-    rotator      <- CadRecord4.build(server, top + RotatorName)
-    filter1      <- CadRecord4.build(server, top + Filter1Name)
-    choprelative <- CadRecord4.build(server, top + ChopRelativeName)
-    chopcfg      <- CadRecord4.build(server, top + ChopConfigName)
-  } yield ConfigCmdsImpl(slew, rotator, filter1, choprelative, chopcfg)
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, ConfigCmds[F]] =
+    for {
+      slew         <- CadRecord16.build(server, top + SlewName)
+      rotator      <- CadRecord4.build(server, top + RotatorName)
+      filter1      <- CadRecord4.build(server, top + Filter1Name)
+      choprelative <- CadRecord4.build(server, top + ChopRelativeName)
+      chopcfg      <- CadRecord4.build(server, top + ChopConfigName)
+    } yield ConfigCmdsImpl(slew, rotator, filter1, choprelative, chopcfg)
 }

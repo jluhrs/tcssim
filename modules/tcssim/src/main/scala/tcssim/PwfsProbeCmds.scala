@@ -60,7 +60,10 @@ object PwfsProbeCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], name: String): Resource[F, PwfsProbeCmds[F]] = for {
+  def build[F[_]: Applicative](
+    server: EpicsServer[F],
+    name:   String
+  ): Resource[F, PwfsProbeCmds[F]] = for {
     park       <- CadRecord.build(server, name + ParkSuffix)
     datum      <- CadRecord.build(server, name + DatumSuffix)
     flip       <- CadRecord.build(server, name + FlipSuffix)

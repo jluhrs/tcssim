@@ -23,15 +23,16 @@ trait CadRecord[F[_]] {
 object CadRecord {
 
   abstract class CadRecordImpl[F[_]: Applicative] extends CadRecord[F] {
-    override def clean: F[Unit] = MARK.put(0)
+    override def clean: F[Unit]                     = MARK.put(0)
     def process: Resource[F, List[Stream[F, Unit]]] = CadUtil.process(DIR, MARK, inputs)
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], cadName: String): Resource[F, CadRecord[F]] = for {
-    dir <- buildDir(server, cadName)
-    mark <- server.createPV1(cadName + MarkSuffix, 0)
-  } yield new CadRecordImpl[F] {
-    override val DIR: MemoryPV1[F, CadDirective] = dir
-    override val MARK: MemoryPV1[F, Int] = mark
-  }
+  def build[F[_]: Applicative](server: EpicsServer[F], cadName: String): Resource[F, CadRecord[F]] =
+    for {
+      dir  <- buildDir(server, cadName)
+      mark <- server.createPV1(cadName + MarkSuffix, 0)
+    } yield new CadRecordImpl[F] {
+      override val DIR: MemoryPV1[F, CadDirective] = dir
+      override val MARK: MemoryPV1[F, Int]         = mark
+    }
 }

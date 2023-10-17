@@ -19,7 +19,7 @@ trait WavelengthCmds[F[_]] {
   val g2: CadRecord1[F]
   val g3: CadRecord1[F]
   val g4: CadRecord1[F]
-  
+
   def cads: List[CadRecord[F]]
 }
 
@@ -65,7 +65,10 @@ object WavelengthCmds {
         g4
       )
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, WavelengthCmds[F]] = for {
+  def build[F[_]: Applicative](
+    server: EpicsServer[F],
+    top:    String
+  ): Resource[F, WavelengthCmds[F]] = for {
     mount   <- CadRecord1.build(server, top + WavelengthPrefix + MountName)
     sourcea <- CadRecord1.build(server, top + WavelengthPrefix + SourceAName)
     sourceb <- CadRecord1.build(server, top + WavelengthPrefix + SourceBName)

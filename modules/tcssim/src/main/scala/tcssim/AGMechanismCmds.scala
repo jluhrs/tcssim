@@ -34,7 +34,10 @@ object AGMechanismCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, AGMechanismCmds[F]] = for {
+  def build[F[_]: Applicative](
+    server: EpicsServer[F],
+    top:    String
+  ): Resource[F, AGMechanismCmds[F]] = for {
     move  <- CadRecord1.build(server, top)
     park  <- CadRecord.build(server, top + ParkSuffix)
     datum <- CadRecord.build(server, top + DatumSuffix)
