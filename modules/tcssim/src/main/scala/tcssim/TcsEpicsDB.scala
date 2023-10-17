@@ -4,9 +4,9 @@
 package tcssim
 
 import cats.Applicative
+import cats.effect.kernel.Resource
 import cats.syntax.all.*
 import fs2.Stream
-import cats.effect.kernel.Resource
 import tcssim.epics.EpicsServer
 
 trait TcsEpicsDB[F[_]] {

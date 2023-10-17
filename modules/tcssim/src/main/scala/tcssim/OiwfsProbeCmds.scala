@@ -4,8 +4,8 @@
 package tcssim
 
 import cats.Applicative
-import cats.syntax.all.*
 import cats.effect.Resource
+import cats.syntax.all.*
 import tcssim.epics.EpicsServer
 
 trait OiwfsProbeCmds[F[_]] {

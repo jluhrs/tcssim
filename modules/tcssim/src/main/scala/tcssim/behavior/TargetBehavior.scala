@@ -3,10 +3,14 @@
 
 package tcssim.behavior
 
-import cats.{Applicative, Monad, Parallel}
+import cats.Applicative
+import cats.Monad
+import cats.Parallel
 import cats.syntax.all.*
 import monocle.Getter
-import tcssim.{CadRecord12, Target, TcsEpicsDB}
+import tcssim.CadRecord12
+import tcssim.Target
+import tcssim.TcsEpicsDB
 
 case class TargetBehavior[F[_]: Monad: Parallel](
   cmdGetter:    Getter[TcsEpicsDB[F], CadRecord12[F]],

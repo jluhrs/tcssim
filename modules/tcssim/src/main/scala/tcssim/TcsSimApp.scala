@@ -3,17 +3,19 @@
 
 package tcssim
 
-import cats.syntax.all.*
 import cats.effect.ExitCode
 import cats.effect.IO
 import cats.effect.IOApp
 import cats.effect.Resource
 import cats.effect.std.Dispatcher
 import cats.implicits.catsSyntaxEq
+import cats.syntax.all.*
 import fs2.Stream
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import tcssim.behavior.{Behavior, GuiderBehavior, TargetBehavior}
+import tcssim.behavior.Behavior
+import tcssim.behavior.GuiderBehavior
+import tcssim.behavior.TargetBehavior
 import tcssim.epics.EpicsServer
 
 import scala.concurrent.duration.DurationInt

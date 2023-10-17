@@ -3,11 +3,19 @@
 
 package tcssim.behavior
 
-import cats.{Applicative, Monad, Parallel}
+import cats.Applicative
+import cats.Monad
+import cats.Parallel
 import cats.syntax.all.*
 import monocle.Getter
+import tcssim.BinaryOnOff
+import tcssim.BinaryYesNo
+import tcssim.CadRecord
+import tcssim.GuideCmds
+import tcssim.GuideStat
+import tcssim.TcsEpicsDB
+import tcssim.WfsCommands
 import tcssim.epics.MemoryPV1
-import tcssim.{BinaryOnOff, BinaryYesNo, CadRecord, GuideCmds, GuideStat, TcsEpicsDB, WfsCommands}
 
 case class GuiderBehavior[F[_]: Monad: Parallel](
   guideCmdGetter: Getter[TcsEpicsDB[F], GuideCmds[F]],
