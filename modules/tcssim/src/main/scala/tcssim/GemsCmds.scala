@@ -3,7 +3,9 @@
 
 package tcssim
 
-import cats.effect.kernel.Resource
+import cats.Applicative
+import cats.effect.Resource
+import cats.syntax.all.*
 import tcssim.epics.EpicsServer
 
 trait GemsCmds[F[_]] {
@@ -14,6 +16,7 @@ trait GemsCmds[F[_]] {
   val odgw2Park: CadRecord1[F]
   val odgw3Park: CadRecord1[F]
   val odgw4Park: CadRecord1[F]
+  def cads: List[CadRecord[F]]
 }
 
 object GemsCmds {
@@ -33,22 +36,35 @@ object GemsCmds {
     odgw2Park:  CadRecord1[F],
     odgw3Park:  CadRecord1[F],
     odgw4Park:  CadRecord1[F]
-  ) extends GemsCmds[F]
+  ) extends GemsCmds[F] {
+    override def cads: List[CadRecord[F]] =
+      List(
+        ngsPr1Ctrl,
+        ngsPr2Ctrl,
+        ngsPr3Ctrl,
+        odgw1Park,
+        odgw2Park,
+        odgw3Park,
+        odgw4Park
+      )
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, GemsCmds[F]] = for {
-    ngspr1ctrl <- CadRecord1.build(server, top + NgsPr1CtrlSuffix)
-    ngspr2ctrl <- CadRecord1.build(server, top + NgsPr2CtrlSuffix)
-    ngspr3ctrl <- CadRecord1.build(server, top + NgsPr3CtrlSuffix)
-    odgw1park  <- CadRecord1.build(server, top + Odgw1ParkSuffix)
-    odgw2park  <- CadRecord1.build(server, top + Odgw2ParkSuffix)
-    odgw3park  <- CadRecord1.build(server, top + Odgw3ParkSuffix)
-    odgw4park  <- CadRecord1.build(server, top + Odgw4ParkSuffix)
-  } yield GemsCmdsImpl(ngspr1ctrl,
-                       ngspr2ctrl,
-                       ngspr3ctrl,
-                       odgw1park,
-                       odgw2park,
-                       odgw3park,
-                       odgw4park
-  )
+  }
+
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, GemsCmds[F]] =
+    for {
+      ngspr1ctrl <- CadRecord1.build(server, top + NgsPr1CtrlSuffix)
+      ngspr2ctrl <- CadRecord1.build(server, top + NgsPr2CtrlSuffix)
+      ngspr3ctrl <- CadRecord1.build(server, top + NgsPr3CtrlSuffix)
+      odgw1park  <- CadRecord1.build(server, top + Odgw1ParkSuffix)
+      odgw2park  <- CadRecord1.build(server, top + Odgw2ParkSuffix)
+      odgw3park  <- CadRecord1.build(server, top + Odgw3ParkSuffix)
+      odgw4park  <- CadRecord1.build(server, top + Odgw4ParkSuffix)
+    } yield GemsCmdsImpl(ngspr1ctrl,
+                         ngspr2ctrl,
+                         ngspr3ctrl,
+                         odgw1park,
+                         odgw2park,
+                         odgw3park,
+                         odgw4park
+    )
 }

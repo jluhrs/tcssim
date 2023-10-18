@@ -3,6 +3,7 @@
 
 package tcssim
 
+import cats.Applicative
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -14,6 +15,8 @@ trait GuiderTrackCommands[F[_]] {
   val g2: CadRecord9[F]
   val g3: CadRecord9[F]
   val g4: CadRecord9[F]
+
+  def cads: List[CadRecord[F]]
 }
 
 object GuiderTrackCommands {
@@ -34,9 +37,22 @@ object GuiderTrackCommands {
     g2:    CadRecord9[F],
     g3:    CadRecord9[F],
     g4:    CadRecord9[F]
-  ) extends GuiderTrackCommands[F]
+  ) extends GuiderTrackCommands[F]:
+    override def cads: List[CadRecord[F]] =
+      List(
+        pwfs1,
+        pwfs2,
+        oiwfs,
+        g1,
+        g2,
+        g3,
+        g4
+      )
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, GuiderTrackCommands[F]] = for {
+  def build[F[_]: Applicative](
+    server: EpicsServer[F],
+    top:    String
+  ): Resource[F, GuiderTrackCommands[F]] = for {
     p1 <- CadRecord9.build(server, top + ConfigPrefix + Pwfs1Name)
     p2 <- CadRecord9.build(server, top + ConfigPrefix + Pwfs2Name)
     oi <- CadRecord9.build(server, top + ConfigPrefix + OiwfsName)

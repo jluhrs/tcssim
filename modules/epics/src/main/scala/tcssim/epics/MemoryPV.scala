@@ -53,7 +53,7 @@ object MemoryPV {
              }
            } { x =>
              Async[F].delay {
-               server.unregisterProcessVaribale(name)
+               server.unregisterProcessVariable(name)
                x.destroy()
              }
            }

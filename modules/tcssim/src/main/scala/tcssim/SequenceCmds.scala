@@ -3,7 +3,9 @@
 
 package tcssim
 
+import cats.Applicative
 import cats.effect.Resource
+import cats.syntax.all.*
 import tcssim.epics.EpicsServer
 
 trait SequenceCmds[F[_]] {
@@ -15,6 +17,8 @@ trait SequenceCmds[F[_]] {
   val endGuide: CadRecord[F]
   val pause: CadRecord[F]
   val continue: CadRecord[F]
+
+  def cads: List[CadRecord[F]]
 }
 
 object SequenceCmds {
@@ -36,16 +40,30 @@ object SequenceCmds {
     endGuide:   CadRecord[F],
     pause:      CadRecord[F],
     continue:   CadRecord[F]
-  ) extends SequenceCmds[F]
+  ) extends SequenceCmds[F] {
+    override def cads: List[CadRecord[F]] =
+      List(
+        verify,
+        test,
+        observe,
+        endObserve,
+        guide,
+        endGuide,
+        pause,
+        continue
+      )
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, SequenceCmds[F]] = for {
-    verify     <- CadRecord.build(server, top + VerifySuffix)
-    test       <- CadRecord.build(server, top + TestSuffix)
-    observe    <- CadRecord.build(server, top + ObserveSuffix)
-    endobserve <- CadRecord.build(server, top + EndObserveSuffix)
-    guide      <- CadRecord.build(server, top + GuideSuffix)
-    endguide   <- CadRecord.build(server, top + EndGuideSuffix)
-    pause      <- CadRecord.build(server, top + PauseSuffix)
-    continue   <- CadRecord.build(server, top + ContinueSuffix)
-  } yield SequenceCmdsImpl(verify, test, observe, endobserve, guide, endguide, pause, continue)
+  }
+
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, SequenceCmds[F]] =
+    for {
+      verify     <- CadRecord.build(server, top + VerifySuffix)
+      test       <- CadRecord.build(server, top + TestSuffix)
+      observe    <- CadRecord.build(server, top + ObserveSuffix)
+      endobserve <- CadRecord.build(server, top + EndObserveSuffix)
+      guide      <- CadRecord.build(server, top + GuideSuffix)
+      endguide   <- CadRecord.build(server, top + EndGuideSuffix)
+      pause      <- CadRecord.build(server, top + PauseSuffix)
+      continue   <- CadRecord.build(server, top + ContinueSuffix)
+    } yield SequenceCmdsImpl(verify, test, observe, endobserve, guide, endguide, pause, continue)
 }

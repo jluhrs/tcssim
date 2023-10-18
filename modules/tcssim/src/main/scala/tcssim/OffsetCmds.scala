@@ -3,7 +3,9 @@
 
 package tcssim
 
-import cats.effect.kernel.Resource
+import cats.Applicative
+import cats.effect.Resource
+import cats.syntax.all.*
 import tcssim.epics.EpicsServer
 
 trait OffsetCmds[F[_]] {
@@ -13,6 +15,8 @@ trait OffsetCmds[F[_]] {
   val offsetPoB1: CadRecord2[F]
   val offsetPoC: CadRecord2[F]
   val offsetPoC1: CadRecord2[F]
+
+  def cads: List[CadRecord[F]]
 }
 
 object OffsetCmds {
@@ -30,14 +34,26 @@ object OffsetCmds {
     offsetPoB1: CadRecord2[F],
     offsetPoC:  CadRecord2[F],
     offsetPoC1: CadRecord2[F]
-  ) extends OffsetCmds[F]
+  ) extends OffsetCmds[F] {
+    override def cads: List[CadRecord[F]] =
+      List(
+        offsetPoA,
+        offsetPoA1,
+        offsetPoB,
+        offsetPoB1,
+        offsetPoC,
+        offsetPoC1
+      )
 
-  def build[F[_]](server: EpicsServer[F], top: String): Resource[F, OffsetCmds[F]] = for {
-    poa  <- CadRecord2.build(server, top + OffsetPoASuffix)
-    poa1 <- CadRecord2.build(server, top + OffsetPoA1Suffix)
-    pob  <- CadRecord2.build(server, top + OffsetPoBSuffix)
-    pob1 <- CadRecord2.build(server, top + OffsetPoB1Suffix)
-    poc  <- CadRecord2.build(server, top + OffsetPoCSuffix)
-    poc1 <- CadRecord2.build(server, top + OffsetPoC1Suffix)
-  } yield OffsetCmdsImpl(poa, poa1, pob, pob1, poc, poc1)
+  }
+
+  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, OffsetCmds[F]] =
+    for {
+      poa  <- CadRecord2.build(server, top + OffsetPoASuffix)
+      poa1 <- CadRecord2.build(server, top + OffsetPoA1Suffix)
+      pob  <- CadRecord2.build(server, top + OffsetPoBSuffix)
+      pob1 <- CadRecord2.build(server, top + OffsetPoB1Suffix)
+      poc  <- CadRecord2.build(server, top + OffsetPoCSuffix)
+      poc1 <- CadRecord2.build(server, top + OffsetPoC1Suffix)
+    } yield OffsetCmdsImpl(poa, poa1, pob, pob1, poc, poc1)
 }

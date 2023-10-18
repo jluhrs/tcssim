@@ -3,7 +3,9 @@
 
 package tcssim
 
+import cats.Applicative
 import cats.effect.Resource
+import cats.syntax.all.*
 import tcssim.epics.EpicsServer
 
 trait PwfsProbeCmds[F[_]] {
@@ -17,6 +19,8 @@ trait PwfsProbeCmds[F[_]] {
   val fieldStop: AGMechanismCmds[F]
   val focusPark: CadRecord[F]
   val focusDatum: CadRecord[F]
+
+  def cads: List[CadRecord[F]]
 }
 
 object PwfsProbeCmds {
@@ -41,9 +45,25 @@ object PwfsProbeCmds {
     fieldStop:  AGMechanismCmds[F],
     focusPark:  CadRecord[F],
     focusDatum: CadRecord[F]
-  ) extends PwfsProbeCmds[F]
+  ) extends PwfsProbeCmds[F] {
+    override def cads: List[CadRecord[F]] =
+      List(
+        park,
+        datum,
+        flip,
+        stop,
+        unwrap,
+        move,
+        focusPark,
+        focusDatum
+      ) ++ List(filter.cads, fieldStop.cads).flatten
 
-  def build[F[_]](server: EpicsServer[F], name: String): Resource[F, PwfsProbeCmds[F]] = for {
+  }
+
+  def build[F[_]: Applicative](
+    server: EpicsServer[F],
+    name:   String
+  ): Resource[F, PwfsProbeCmds[F]] = for {
     park       <- CadRecord.build(server, name + ParkSuffix)
     datum      <- CadRecord.build(server, name + DatumSuffix)
     flip       <- CadRecord.build(server, name + FlipSuffix)
