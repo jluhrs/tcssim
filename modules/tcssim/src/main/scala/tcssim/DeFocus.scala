@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -20,7 +20,7 @@ object DeFocusCmds {
     dtelFocus: CadRecord2[F]
   ) extends DeFocusCmds[F]
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, DeFocusCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, DeFocusCmds[F]] =
     for {
       dtelFocus <- CadRecord2.build(server, top + DefocusSuffix)
     } yield DefocusCmdsImpl[F](dtelFocus)

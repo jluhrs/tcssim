@@ -41,7 +41,7 @@ object Settings {
   val Cats         = Def.setting("org.typelevel" %%% "cats-core" % LibraryVersion.cats)
   val Kittens      = Def.setting("org.typelevel" %%% "kittens" % LibraryVersion.kittens)
   val CatsEffect   = Def.setting("org.typelevel" %%% "cats-effect" % LibraryVersion.catsEffect)
-  val Fs2          = Def.setting("co.fs2"   %% "fs2-core"     % LibraryVersion.fs2)
+  val Fs2          = Def.setting("co.fs2" %% "fs2-core" % LibraryVersion.fs2)
   val Mouse        = Def.setting("org.typelevel" %%% "mouse" % LibraryVersion.mouse)
   val Log4Cats     = Def.setting("org.typelevel" %%% "log4cats-slf4j" % LibraryVersion.log4cats)
   val Logback      = Def.setting(

@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.kernel.Resource
 import cats.syntax.all.*
 import fs2.Stream
@@ -17,7 +17,7 @@ trait AGEpicsDB[F[_]] {
 }
 
 object AGEpicsDB {
-  private case class AGEpicsDBImpl[F[_]: Applicative](
+  private case class AGEpicsDBImpl[F[_]: Monad](
     status:   AG[F],
     commands: AGCmds[F]
   ) extends AGEpicsDB[F] {
@@ -27,7 +27,7 @@ object AGEpicsDB {
     override def clean: F[Unit] = commands.cads.map(_.clean).sequence.void
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, AGEpicsDB[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, AGEpicsDB[F]] =
     for {
       st  <- AG.build(server, top)
       cmd <- AGCmds.build(server, top)
