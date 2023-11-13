@@ -30,17 +30,21 @@ object TcsSimApp extends IOApp {
       _   <- Resource.eval(printBanner)
       dsp <- Dispatcher.parallel[IO]
       srv <- EpicsServer.start[IO](dsp)
-      db  <- TcsEpicsDB.build(srv, "tc1:")
-    } yield db
+      tcs <- TcsEpicsDB.build(srv, "tc1:")
+      ag  <- AGEpicsDB.build(srv, "ag:")
+    } yield (tcs, ag)
 
-    r.use(process).as(ExitCode.Success)
+    r.use(process.tupled).as(ExitCode.Success)
   }
 
-  def process(db: TcsEpicsDB[IO]): IO[Unit] =
-    (db.process,
-     db.commands.apply.DIR.valueStream.map(_.evalMap(_.map(carActivity(db)).getOrElse(IO.unit)))
+  def process(tcs: TcsEpicsDB[IO], ag: AGEpicsDB[IO]): IO[Unit] =
+    (tcs.process,
+     tcs.commands.apply.DIR.valueStream.map(_.evalMap(_.map(carActivity(tcs)).getOrElse(IO.unit))),
+     ag.process
     )
-      .mapN(_ :+ _)
+      .mapN((a: List[Stream[IO, Unit]], b: Stream[IO, Unit], c: List[Stream[IO, Unit]]) =>
+        b :: (a ::: c)
+      )
       .use(Stream.emits[IO, Stream[IO, Unit]](_).parJoinUnbounded.compile.drain)
 
   val BusyTime: FiniteDuration = 1.seconds

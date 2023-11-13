@@ -52,7 +52,8 @@ object TcsCommands {
     nodchopCmds:         NodChopCmds[F],
     carouselModeCmd:     CadRecord1[F],
     mountCmds:           MountCmds[F],
-    rotatorCmds:         RotatorCmds[F]
+    rotatorCmds:         RotatorCmds[F],
+    defocusCmds:         DeFocusCmds[F]
   ) extends TcsCommands[F]:
     override def cads: List[CadRecord[F]] =
       List(
@@ -70,7 +71,8 @@ object TcsCommands {
         configCmds.cads,
         nodchopCmds.cads,
         mountCmds.cads,
-        rotatorCmds.cads
+        rotatorCmds.cads,
+        defocusCmds.cads
       ).flatten :+ carouselModeCmd
 
   def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] =
@@ -93,6 +95,7 @@ object TcsCommands {
       cm    <- CadRecord1.build(server, top + CarouselModeName)
       mc    <- MountCmds.build(server, top)
       rc    <- RotatorCmds.build(server, top)
+      df    <- DeFocusCmds.build(server, top)
     } yield TcsCommandsImpl(apply,
                             car,
                             wfsc,
@@ -110,6 +113,7 @@ object TcsCommands {
                             ncc,
                             cm,
                             mc,
-                            rc
+                            rc,
+                            df
     )
 }
