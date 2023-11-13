@@ -62,6 +62,7 @@ object TcsSad {
   val InstrAASuffix: String        = "instrAA.VAL"
   val InstrPASuffix: String        = "instrPA.VAL"
   val M2UserOffsetSuffix: String   = "m2ZUserOffset.VAL"
+  val DefocusSuffix: String        = "dtelFocus.VALB"
 
   private case class TcsSadImpl[F[_]](
     state:                 MemoryPV1[F, String],
@@ -96,7 +97,8 @@ object TcsSad {
     instrAA:               MemoryPV1[F, Double],
     instrPA:               MemoryPV1[F, Double],
     airmass:               Airmass[F],
-    m2UserOffset:          MemoryPV1[F, Double]
+    m2UserOffset:          MemoryPV1[F, Double],
+    defcous:               MemoryPV1[F, Double]
   ) extends TcsSad[F]
 
   def build[F[_]](server: EpicsServer[F], top: String): Resource[F, TcsSad[F]] = for {
@@ -122,7 +124,7 @@ object TcsSad {
     gtc   <- NDGuidersTrackConfig.build(server, top)
     fls   <- FollowStat.build(server, top)
     pa    <- server.createPV1(top + SadPrefix + ParAngleSuffix, 0.0)
-    agip  <- server.createPV1(top + AgInPositionSuffix, 0.0)
+    agip  <- server.createPV1(top + AgInPositionSuffix, 1.0)
     altr  <- AltairStat.build(server, top)
     gdst  <- GuideStat.build(server, top)
     ncst  <- NodChopStat.build(server, top, top + SadPrefix)
@@ -133,6 +135,7 @@ object TcsSad {
     ipa   <- server.createPV1(top + SadPrefix + InstrPASuffix, 0.0)
     am    <- Airmass.build(server, top + SadPrefix)
     m2of  <- server.createPV1(top + SadPrefix + M2UserOffsetSuffix, 0.0)
+    df    <- server.createPV1(top + DefocusSuffix, 0.0)
   } yield TcsSadImpl(st,
                      hlt,
                      hb,
@@ -165,6 +168,7 @@ object TcsSad {
                      iaa,
                      ipa,
                      am,
-                     m2of
+                     m2of,
+                     df
   )
 }
