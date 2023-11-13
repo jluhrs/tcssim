@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import cats.syntax.all.*
 import tcssim.epics.EpicsServer
@@ -50,7 +50,7 @@ object GemsCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, GemsCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, GemsCmds[F]] =
     for {
       ngspr1ctrl <- CadRecord1.build(server, top + NgsPr1CtrlSuffix)
       ngspr2ctrl <- CadRecord1.build(server, top + NgsPr2CtrlSuffix)

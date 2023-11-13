@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import cats.syntax.all.*
 import tcssim.epics.EpicsServer
@@ -92,7 +92,7 @@ object AltairCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, AltairCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, AltairCmds[F]] =
     for {
       configforao    <- CadRecord1.build(server, top + ConfigForAoSuffix)
       aodeployadc    <- CadRecord1.build(server, top + AoDeployAdcSuffix)

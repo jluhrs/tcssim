@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -32,7 +32,7 @@ object NodChopCmds {
         beam
       )
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, NodChopCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, NodChopCmds[F]] =
     for {
       nod  <- CadRecord1.build(server, top + NodName)
       chop <- CadRecord2.build(server, top + ChopName)

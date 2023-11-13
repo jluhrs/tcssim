@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 import tcssim.epics.MemoryPV1
@@ -19,7 +19,7 @@ trait CadRecord9[F[_]] extends CadRecord7[F] {
 
 object CadRecord9 {
 
-  private case class CadRecord9Impl[F[_]: Applicative](
+  private case class CadRecord9Impl[F[_]: Monad](
     DIR:               MemoryPV1[F, CadDirective],
     override val MARK: MemoryPV1[F, Int],
     inputA:            MemoryPV1[F, String],
@@ -34,7 +34,7 @@ object CadRecord9 {
   ) extends CadRecord.CadRecordImpl[F]
       with CadRecord9[F]
 
-  def build[F[_]: Applicative](
+  def build[F[_]: Monad](
     server:  EpicsServer[F],
     cadName: String
   ): Resource[F, CadRecord9[F]] = for {

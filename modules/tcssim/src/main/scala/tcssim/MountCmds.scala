@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -21,7 +21,7 @@ object MountCmds {
   ) extends MountCmds[F]:
     override def cads: List[CadRecord[F]] = List(park)
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, MountCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, MountCmds[F]] =
     for {
       park <- CadRecord.build(server, top + mountParkSuffix)
     } yield MountCmdsImpl(park)

@@ -13,9 +13,9 @@ lazy val epics = project
     libraryDependencies ++= Seq(
       Cats.value,
       CatsEffect.value,
-      EpicsJCA,
+      EpicsJCA.value,
       Log4Cats.value,
-      Fs2,
+      Fs2.value,
       Log4CatsNoop.value
     ) ++ LucumaCore.value ++ MUnit.value,
     Test / parallelExecution := false,
@@ -30,7 +30,8 @@ lazy val tcssim = project
       Cats.value,
       Kittens.value,
       CatsEffect.value,
-      Fs2
+      Fs2.value,
+      Mouse.value
     ) ++ LucumaCore.value ++ MUnit.value ++ Logging.value,
     Test / parallelExecution := false,
     reStart / mainClass      := Some("tcssim.TcsSimApp")

@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import cats.syntax.all.*
 import tcssim.epics.EpicsServer
@@ -47,7 +47,7 @@ object OffsetCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, OffsetCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, OffsetCmds[F]] =
     for {
       poa  <- CadRecord2.build(server, top + OffsetPoASuffix)
       poa1 <- CadRecord2.build(server, top + OffsetPoA1Suffix)

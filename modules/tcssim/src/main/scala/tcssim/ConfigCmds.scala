@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -42,7 +42,7 @@ object ConfigCmds {
       )
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, ConfigCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, ConfigCmds[F]] =
     for {
       slew         <- CadRecord16.build(server, top + SlewName)
       rotator      <- CadRecord4.build(server, top + RotatorName)
