@@ -4,13 +4,16 @@
 package tcssim
 
 import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
+import cats.syntax.all.*
 import fs2.Stream
+import mouse.boolean.*
 import tcssim.epics.EpicsServer
 import tcssim.epics.MemoryPV1
 import tcssim.epics.given
 
-import CadUtil._
+import CadUtil.*
 
 trait CadRecord[F[_]] {
   val DIR: MemoryPV1[F, CadDirective]
@@ -22,12 +25,13 @@ trait CadRecord[F[_]] {
 
 object CadRecord {
 
-  abstract class CadRecordImpl[F[_]: Applicative] extends CadRecord[F] {
-    override def clean: F[Unit]                     = MARK.put(0)
+  abstract class CadRecordImpl[F[_]: Monad] extends CadRecord[F] {
+    override def clean: F[Unit]                     =
+      MARK.getOption.flatMap(_.exists(_ =!= 0).fold(MARK.put(0), Applicative[F].unit))
     def process: Resource[F, List[Stream[F, Unit]]] = CadUtil.process(DIR, MARK, inputs)
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], cadName: String): Resource[F, CadRecord[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], cadName: String): Resource[F, CadRecord[F]] =
     for {
       dir  <- buildDir(server, cadName)
       mark <- server.createPV1(cadName + MarkSuffix, 0)

@@ -4,9 +4,11 @@
 package tcssim
 
 import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import cats.syntax.all.*
 import fs2.Stream
+import mouse.boolean.*
 import tcssim.epics.EpicsServer
 import tcssim.epics.MemoryPV1
 import tcssim.epics.given
@@ -38,13 +40,18 @@ object CadUtil {
   ): Resource[F, MemoryPV1[F, CadDirective]] =
     server.createPV1(name + DirSuffix, CadDirective.CLEAR)
 
-  def process[F[_]: Applicative](
+  def process[F[_]: Monad](
     dir:    MemoryPV1[F, CadDirective],
     mark:   MemoryPV1[F, Int],
     inputs: List[MemoryPV1[F, String]]
   ): Resource[F, List[Stream[F, Unit]]] =
     (inputs.map(
-      _.valueStream.map(_.evalMap(_.as(mark.put(1)).getOrElse(Applicative[F].unit)))
+      _.valueStream.map(
+        _.evalMap(
+          _.as(mark.getOption.flatMap(_.forall(_ === 0).fold(mark.put(1), Applicative[F].unit)))
+            .getOrElse(Applicative[F].unit)
+        )
+      )
     ) :+
       dir.valueStream.map {
         _.evalMap {

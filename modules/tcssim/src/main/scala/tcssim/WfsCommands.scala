@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import cats.syntax.all.*
 import tcssim.epics.EpicsServer
@@ -25,7 +25,7 @@ object WfsCommands {
   val P2Prefix: String       = "pwfs2"
   val OiPrefix: String       = "oiwfs"
 
-  private case class WfsCommandsImpl[F[_]: Applicative](
+  private case class WfsCommandsImpl[F[_]: Monad](
     p1Observe: CadRecord7[F],
     p1Stop:    CadRecord[F],
     p2Observe: CadRecord7[F],
@@ -45,7 +45,7 @@ object WfsCommands {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, WfsCommands[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, WfsCommands[F]] =
     for {
       p1o <- CadRecord7.build(server, top + P1Prefix + ObserveCadName)
       p1s <- CadRecord.build(server, top + P1Prefix + StopCadName)

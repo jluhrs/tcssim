@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -60,7 +60,7 @@ object TargetCmds {
         g4
       )
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TargetCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, TargetCmds[F]] =
     for {
       sourcea <- CadRecord12.build(server, top + SourceASuffix)
       sourceb <- CadRecord12.build(server, top + SourceBSuffix)

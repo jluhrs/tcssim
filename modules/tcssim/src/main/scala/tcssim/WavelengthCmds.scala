@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -65,7 +65,7 @@ object WavelengthCmds {
         g4
       )
 
-  def build[F[_]: Applicative](
+  def build[F[_]: Monad](
     server: EpicsServer[F],
     top:    String
   ): Resource[F, WavelengthCmds[F]] = for {

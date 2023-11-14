@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import cats.syntax.all.*
 import tcssim.epics.EpicsServer
@@ -53,7 +53,7 @@ object AGCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, AGCmds[F]] = for {
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, AGCmds[F]] = for {
     sciencefold      <- AGMechanismCmds.build(server, top + ScienceFoldName)
     sciencefolddatum <- CadRecord.build(server, top + ScienceFoldName + DatumSuffix)
     sciencefoldpark  <- CadRecord.build(server, top + ScienceFoldName + ParkSuffix)

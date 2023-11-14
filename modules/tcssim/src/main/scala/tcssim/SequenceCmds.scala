@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import cats.syntax.all.*
 import tcssim.epics.EpicsServer
@@ -55,7 +55,7 @@ object SequenceCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, SequenceCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, SequenceCmds[F]] =
     for {
       verify     <- CadRecord.build(server, top + VerifySuffix)
       test       <- CadRecord.build(server, top + TestSuffix)

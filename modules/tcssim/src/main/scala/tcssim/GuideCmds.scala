@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -52,7 +52,7 @@ object GuideCmds {
         m2GuideReset
       )
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, GuideCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, GuideCmds[F]] =
     for {
       m1guide       <- CadRecord1.build(server, top + M1GuideSuffix)
       m1guideconfig <- CadRecord4.build(server, top + M1GuideConfigSuffix)

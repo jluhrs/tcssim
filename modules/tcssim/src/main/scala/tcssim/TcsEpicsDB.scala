@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.kernel.Resource
 import cats.syntax.all.*
 import fs2.Stream
@@ -17,7 +17,7 @@ trait TcsEpicsDB[F[_]] {
 }
 
 object TcsEpicsDB {
-  private case class TcsEpicsDBImpl[F[_]: Applicative](
+  private case class TcsEpicsDBImpl[F[_]: Monad](
     status:   TcsSad[F],
     commands: TcsCommands[F]
   ) extends TcsEpicsDB[F] {
@@ -27,7 +27,7 @@ object TcsEpicsDB {
     override def clean: F[Unit] = commands.cads.map(_.clean).sequence.void
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TcsEpicsDB[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, TcsEpicsDB[F]] =
     for {
       st  <- TcsSad.build(server, top)
       cmd <- TcsCommands.build(server, top)

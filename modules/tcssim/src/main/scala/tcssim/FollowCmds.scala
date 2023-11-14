@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import cats.syntax.all.*
 import tcssim.epics.EpicsServer
@@ -75,7 +75,7 @@ object FollowCmds {
 
   }
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, FollowCmds[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, FollowCmds[F]] =
     for {
       mnt   <- CadRecord1.build(server, top + MountSuffix)
       cr    <- CadRecord1.build(server, top + RotatorSuffix)

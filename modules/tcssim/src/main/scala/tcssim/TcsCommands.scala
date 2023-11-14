@@ -3,7 +3,7 @@
 
 package tcssim
 
-import cats.Applicative
+import cats.Monad
 import cats.effect.Resource
 import tcssim.epics.EpicsServer
 
@@ -34,7 +34,7 @@ object TcsCommands {
   val CarSuffix: String        = "applyC"
   val CarouselModeName: String = "carouselMode"
 
-  private case class TcsCommandsImpl[F[_]: Applicative](
+  private case class TcsCommandsImpl[F[_]: Monad](
     apply:               ApplyRecord[F],
     car:                 CarRecord[F],
     wfsCmds:             WfsCommands[F],
@@ -53,7 +53,8 @@ object TcsCommands {
     carouselModeCmd:     CadRecord1[F],
     mountCmds:           MountCmds[F],
     rotatorCmds:         RotatorCmds[F],
-    defocusCmds:         DeFocusCmds[F]
+    defocusCmds:         DeFocusCmds[F],
+    pointingOrigin:      PointingOriginCmds[F]
   ) extends TcsCommands[F]:
     override def cads: List[CadRecord[F]] =
       List(
@@ -72,10 +73,11 @@ object TcsCommands {
         nodchopCmds.cads,
         mountCmds.cads,
         rotatorCmds.cads,
-        defocusCmds.cads
+        defocusCmds.cads,
+        pointingOrigin.cads
       ).flatten :+ carouselModeCmd
 
-  def build[F[_]: Applicative](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] =
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] =
     for {
       apply <- ApplyRecord.build(server, top + ApplySuffix)
       car   <- CarRecord.build(server, top + CarSuffix)
@@ -96,6 +98,7 @@ object TcsCommands {
       mc    <- MountCmds.build(server, top)
       rc    <- RotatorCmds.build(server, top)
       df    <- DeFocusCmds.build(server, top)
+      po    <- PointingOriginCmds.build(server, top)
     } yield TcsCommandsImpl(apply,
                             car,
                             wfsc,
@@ -114,6 +117,7 @@ object TcsCommands {
                             cm,
                             mc,
                             rc,
-                            df
+                            df,
+                            po
     )
 }
