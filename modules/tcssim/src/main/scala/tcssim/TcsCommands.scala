@@ -26,6 +26,10 @@ trait TcsCommands[F[_]] {
   val carouselModeCmd: CadRecord1[F]
   val mountCmds: MountCmds[F]
   val rotatorCmds: RotatorCmds[F]
+  val defocusCmds: DeFocusCmds[F]
+  val pointingOriginCmds: PointingOriginCmds[F]
+  val probeGuideCmds: ProbeGuideCmds[F]
+
   def cads: List[CadRecord[F]]
 }
 
@@ -54,7 +58,8 @@ object TcsCommands {
     mountCmds:           MountCmds[F],
     rotatorCmds:         RotatorCmds[F],
     defocusCmds:         DeFocusCmds[F],
-    pointingOrigin:      PointingOriginCmds[F]
+    pointingOriginCmds:  PointingOriginCmds[F],
+    probeGuideCmds:      ProbeGuideCmds[F]
   ) extends TcsCommands[F]:
     override def cads: List[CadRecord[F]] =
       List(
@@ -74,7 +79,8 @@ object TcsCommands {
         mountCmds.cads,
         rotatorCmds.cads,
         defocusCmds.cads,
-        pointingOrigin.cads
+        pointingOriginCmds.cads,
+        probeGuideCmds.cads
       ).flatten :+ carouselModeCmd
 
   def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] =
@@ -99,6 +105,7 @@ object TcsCommands {
       rc    <- RotatorCmds.build(server, top)
       df    <- DeFocusCmds.build(server, top)
       po    <- PointingOriginCmds.build(server, top)
+      pg    <- ProbeGuideCmds.build(server, top)
     } yield TcsCommandsImpl(apply,
                             car,
                             wfsc,
@@ -118,6 +125,7 @@ object TcsCommands {
                             mc,
                             rc,
                             df,
-                            po
+                            po,
+                            pg
     )
 }
