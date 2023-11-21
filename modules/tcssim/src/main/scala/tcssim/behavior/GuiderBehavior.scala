@@ -49,16 +49,16 @@ case class GuiderBehavior[F[_]: Monad: Parallel](
         }.map(statusGetter.get(db).m1GuideState.put)
           .getOrElse(Applicative[F].unit)
       ),
-    wfs(wfsCmdGetter.get(db).p1Observe,
-        wfsCmdGetter.get(db).p1Stop,
+    wfs(wfsCmdGetter.get(db).pwfs1.observe,
+        wfsCmdGetter.get(db).pwfs1.stop,
         statusGetter.get(db).p1Integrating
     ),
-    wfs(wfsCmdGetter.get(db).p2Observe,
-        wfsCmdGetter.get(db).p2Stop,
+    wfs(wfsCmdGetter.get(db).pwfs2.observe,
+        wfsCmdGetter.get(db).pwfs2.stop,
         statusGetter.get(db).p2Integrating
     ),
-    wfs(wfsCmdGetter.get(db).oiObserve,
-        wfsCmdGetter.get(db).oiStop,
+    wfs(wfsCmdGetter.get(db).oiwfs.observe,
+        wfsCmdGetter.get(db).oiwfs.stop,
         statusGetter.get(db).oiIntegrating
     )
   ).parSequence.void

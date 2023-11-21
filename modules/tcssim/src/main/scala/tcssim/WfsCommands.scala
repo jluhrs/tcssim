@@ -8,50 +8,61 @@ import cats.effect.Resource
 import cats.syntax.all.*
 import tcssim.epics.EpicsServer
 
+import WfsCommands.BaseWfsCommands
+
 trait WfsCommands[F[_]] {
-  val p1Observe: CadRecord7[F]
-  val p1Stop: CadRecord[F]
-  val p2Observe: CadRecord7[F]
-  val p2Stop: CadRecord[F]
-  val oiObserve: CadRecord7[F]
-  val oiStop: CadRecord[F]
-  def cads: List[CadRecord[F]]
+  val pwfs1: BaseWfsCommands[F]
+  val pwfs2: BaseWfsCommands[F]
+  val oiwfs: BaseWfsCommands[F]
+  def cads: List[CadRecord[F]] = pwfs1.cads ++ pwfs2.cads ++ oiwfs.cads
 }
 
 object WfsCommands {
-  val ObserveCadName: String = "Observe"
-  val StopCadName: String    = "StopObserve"
-  val P1Prefix: String       = "pwfs1"
-  val P2Prefix: String       = "pwfs2"
-  val OiPrefix: String       = "oiwfs"
+  val ObserveCadName: String    = "Observe"
+  val StopCadName: String       = "StopObserve"
+  val SignalProcCadName: String = "DetSigInit"
+  val DarkCadName: String       = "SeqDark"
+  val ClosedLoopCadName: String = "Seq"
+  val P1Prefix: String          = "pwfs1"
+  val P2Prefix: String          = "pwfs2"
+  val OiPrefix: String          = "oiwfs"
+  val P1Short: String           = "p1"
+  val P2Short: String           = "p2"
+  val OiShort: String           = "oi"
+
+  case class BaseWfsCommands[F[_]](
+    observe:    CadRecord7[F],
+    stop:       CadRecord[F],
+    signalProc: CadRecord1[F],
+    dark:       CadRecord1[F],
+    closedLoop: CadRecord4[F]
+  ) {
+    val cads: List[CadRecord[F]] = List(observe, stop, signalProc, dark, closedLoop)
+  }
 
   private case class WfsCommandsImpl[F[_]: Monad](
-    p1Observe: CadRecord7[F],
-    p1Stop:    CadRecord[F],
-    p2Observe: CadRecord7[F],
-    p2Stop:    CadRecord[F],
-    oiObserve: CadRecord7[F],
-    oiStop:    CadRecord[F]
-  ) extends WfsCommands[F] {
-    override def cads: List[CadRecord[F]] =
-      List(
-        p1Observe,
-        p2Stop,
-        p2Observe,
-        p2Stop,
-        oiObserve,
-        oiStop
-      )
+    pwfs1: BaseWfsCommands[F],
+    pwfs2: BaseWfsCommands[F],
+    oiwfs: BaseWfsCommands[F]
+  ) extends WfsCommands[F]
 
-  }
+  def buildWfsCommands[F[_]: Monad](
+    server: EpicsServer[F],
+    top:    String,
+    wfsl:   String,
+    wfss:   String
+  ): Resource[F, BaseWfsCommands[F]] = for {
+    ob <- CadRecord7.build(server, top + wfsl + ObserveCadName)
+    st <- CadRecord.build(server, top + wfsl + StopCadName)
+    sg <- CadRecord1.build(server, top + wfss + SignalProcCadName)
+    dk <- CadRecord1.build(server, top + wfss + DarkCadName)
+    cl <- CadRecord4.build(server, top + wfss + ClosedLoopCadName)
+  } yield BaseWfsCommands(ob, st, sg, dk, cl)
 
   def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, WfsCommands[F]] =
     for {
-      p1o <- CadRecord7.build(server, top + P1Prefix + ObserveCadName)
-      p1s <- CadRecord.build(server, top + P1Prefix + StopCadName)
-      p2o <- CadRecord7.build(server, top + P2Prefix + ObserveCadName)
-      p2s <- CadRecord.build(server, top + P2Prefix + StopCadName)
-      oio <- CadRecord7.build(server, top + OiPrefix + ObserveCadName)
-      ois <- CadRecord.build(server, top + OiPrefix + StopCadName)
-    } yield WfsCommandsImpl(p1o, p1s, p2o, p2s, oio, ois)
+      p1 <- buildWfsCommands(server, top, P1Prefix, P1Short)
+      p2 <- buildWfsCommands(server, top, P2Prefix, P2Short)
+      oi <- buildWfsCommands(server, top, OiPrefix, OiShort)
+    } yield WfsCommandsImpl(p1, p2, oi)
 }
