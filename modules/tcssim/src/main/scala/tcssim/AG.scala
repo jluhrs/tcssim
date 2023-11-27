@@ -53,6 +53,9 @@ object AG {
   val OIProbeParkedSuffix: String = "probeParked.VAL"
   val OIFollowSSuffix: String     = "followS.VAL"
   val InPositionSuffix: String    = "agInPosCalc.VAL"
+  val SFRot: String               = "sfRot.VAL"
+  val SFTilt: String              = "sfTilt.VAL"
+  val SFLin: String               = "sfLin.VAL"
 
   private case class AGImpl[F[_]](
     port1:         MemoryPV1[F, String],
@@ -78,7 +81,10 @@ object AG {
     aoName:        MemoryPV1[F, String],
     sfName:        MemoryPV1[F, String],
     sfParked:      MemoryPV1[F, Int],
-    hwParked:      MemoryPV1[F, Int]
+    hwParked:      MemoryPV1[F, Int],
+    sfRot:         MemoryPV1[F, Double],
+    sfTilt:        MemoryPV1[F, Double],
+    sfLin:         MemoryPV1[F, Double]
   ) extends AG[F]
 
   def build[F[_]](server: EpicsServer[F], top: String): Resource[F, AG[F]] = for {
@@ -107,6 +113,9 @@ object AG {
     sfParked      <- server.createPV1(top + SFParkedSuffix, 0)
     hwParked      <- server.createPV1(top + HWParkedSuffix, 0)
     inPosition    <- server.createPV1(top + InPositionSuffix, 1)
+    sfRot         <- server.createPV1(top + SFRot, 0.0)
+    sfTilt        <- server.createPV1(top + SFTilt, 0.0)
+    sfLin         <- server.createPV1(top + SFLin, 0.0)
   } yield AGImpl(
     port1,
     port2,
@@ -131,6 +140,9 @@ object AG {
     aoName,
     sfName,
     sfParked,
-    hwParked
+    hwParked,
+    sfRot,
+    sfTilt,
+    sfLin
   )
 }
