@@ -12,7 +12,7 @@ object Settings {
     lazy val kittens    = "3.1.0"
 
     lazy val munit           = "0.7.29"
-    lazy val munitCatsEffect = "1.0.7"
+    lazy val munitCatsEffect = "2.0.0"
     lazy val munitDiscipline = "1.0.9"
 
     // EPICS Libraries
@@ -30,9 +30,9 @@ object Settings {
 
   val MUnit = Def.setting(
     Seq(
-      "org.scalameta" %%% "munit"               % LibraryVersion.munit           % Test,
-      "org.typelevel" %%% "munit-cats-effect-3" % LibraryVersion.munitCatsEffect % Test,
-      "org.typelevel" %%% "discipline-munit"    % LibraryVersion.munitDiscipline % Test
+      "org.scalameta" %%% "munit"             % LibraryVersion.munit           % Test,
+      "org.typelevel" %%% "munit-cats-effect" % LibraryVersion.munitCatsEffect % Test,
+      "org.typelevel" %%% "discipline-munit"  % LibraryVersion.munitDiscipline % Test
     )
   )
 
