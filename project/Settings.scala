@@ -8,7 +8,7 @@ object Settings {
     lazy val catsEffect = "3.5.2"
     lazy val cats       = "2.10.0"
     lazy val mouse      = "1.2.2"
-    lazy val fs2        = "3.9.2"
+    lazy val fs2        = "3.9.4"
     lazy val kittens    = "3.1.0"
 
     lazy val munit           = "0.7.29"
@@ -19,7 +19,7 @@ object Settings {
     lazy val jca = "2.4.8"
 
     // Lucuma
-    lazy val lucumaCore = "0.89.1"
+    lazy val lucumaCore = "0.91.1"
 
     val slf4j    = "2.0.9"
     val log4s    = "1.10.0"
