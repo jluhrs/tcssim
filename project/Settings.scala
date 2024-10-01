@@ -13,7 +13,7 @@ object Settings {
 
     lazy val munit           = "0.7.29"
     lazy val munitCatsEffect = "1.0.7"
-    lazy val munitDiscipline = "1.0.9"
+    lazy val munitDiscipline = "2.0.0"
 
     // EPICS Libraries
     lazy val jca = "2.4.10"
