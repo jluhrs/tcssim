@@ -7,7 +7,7 @@ object Settings {
     // Scala libraries
     lazy val catsEffect = "3.5.4"
     lazy val cats       = "2.12.0"
-    lazy val mouse      = "1.2.2"
+    lazy val mouse      = "1.2.4"
     lazy val fs2        = "3.9.4"
     lazy val kittens    = "3.1.0"
 
