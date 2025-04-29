@@ -9,6 +9,7 @@ import tcssim.epics.MemoryPV1
 import tcssim.epics.given
 
 sealed trait AG[F[_]] {
+  val health: MemoryPV1[F, String]
   val port1: MemoryPV1[F, String]
   val port2: MemoryPV1[F, String]
   val port3: MemoryPV1[F, String]
@@ -52,12 +53,14 @@ object AG {
   val OINameSuffix: String        = "name.VAL"
   val OIProbeParkedSuffix: String = "probeParked.VAL"
   val OIFollowSSuffix: String     = "followS.VAL"
-  val InPositionSuffix: String    = "agInPosCalc.VAL"
+  val InPositionSuffix: String    = "inPosition.VAL"
   val SFRot: String               = "sfRot.VAL"
   val SFTilt: String              = "sfTilt.VAL"
   val SFLin: String               = "sfLin.VAL"
+  val Health: String              = "health.VAL"
 
   private case class AGImpl[F[_]](
+    health:        MemoryPV1[F, String],
     port1:         MemoryPV1[F, String],
     port2:         MemoryPV1[F, String],
     port3:         MemoryPV1[F, String],
@@ -88,6 +91,7 @@ object AG {
   ) extends AG[F]
 
   def build[F[_]](server: EpicsServer[F], top: String): Resource[F, AG[F]] = for {
+    hlt           <- server.createPV1(top + Health, "GOOD")
     port1         <- server.createPV1(top + PortSuffix + Port1Suffix, "GMOS")
     port2         <- server.createPV1(top + PortSuffix + Port2Suffix, "F2")
     port3         <- server.createPV1(top + PortSuffix + Port3Suffix, "GHOST")
@@ -107,9 +111,9 @@ object AG {
     oiProbeParked <- server.createPV1(top + OISuffix + OIProbeParkedSuffix, 0)
     oiFollowS     <- server.createPV1(top + OISuffix + OIFollowSSuffix, "On")
     p1ProbeParked <- server.createPV1(top + P1Suffix + OIProbeParkedSuffix, 0)
-    p1FollowS     <- server.createPV1(top + P1Suffix + OIFollowSSuffix, "On")
+    p1FollowS     <- server.createPV1(top + P1Suffix + OIFollowSSuffix, "ON")
     p2ProbeParked <- server.createPV1(top + P2Suffix + OIProbeParkedSuffix, 0)
-    p2FollowS     <- server.createPV1(top + P2Suffix + OIFollowSSuffix, "On")
+    p2FollowS     <- server.createPV1(top + P2Suffix + OIFollowSSuffix, "ON")
     sfParked      <- server.createPV1(top + SFParkedSuffix, 0)
     hwParked      <- server.createPV1(top + HWParkedSuffix, 0)
     inPosition    <- server.createPV1(top + InPositionSuffix, 1)
@@ -117,6 +121,7 @@ object AG {
     sfTilt        <- server.createPV1(top + SFTilt, 0.0)
     sfLin         <- server.createPV1(top + SFLin, 0.0)
   } yield AGImpl(
+    hlt,
     port1,
     port2,
     port3,

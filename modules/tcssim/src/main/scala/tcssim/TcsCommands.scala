@@ -10,7 +10,7 @@ import tcssim.epics.EpicsServer
 trait TcsCommands[F[_]] {
   val apply: ApplyRecord[F]
   val car: CarRecord[F]
-  val wfsCmds: WfsCommands[F]
+  val wfsCmds: TcsWfsCommands[F]
   val guiderTrackCommands: GuiderTrackCommands[F]
   val offsetCmds: OffsetCmds[F]
   val guideCmds: GuideCmds[F]
@@ -29,6 +29,7 @@ trait TcsCommands[F[_]] {
   val defocusCmds: DeFocusCmds[F]
   val pointingOriginCmds: PointingOriginCmds[F]
   val probeGuideCmds: ProbeGuideCmds[F]
+  val poAdjust: CadRecord4[F]
 
   def cads: List[CadRecord[F]]
 }
@@ -37,32 +38,57 @@ object TcsCommands {
   val ApplySuffix: String      = "apply"
   val CarSuffix: String        = "applyC"
   val CarouselModeName: String = "carouselMode"
+  val PoAdjustName: String     = "poAdjust"
 
-  private case class TcsCommandsImpl[F[_]: Monad](
-    apply:               ApplyRecord[F],
-    car:                 CarRecord[F],
-    wfsCmds:             WfsCommands[F],
-    guiderTrackCommands: GuiderTrackCommands[F],
-    offsetCmds:          OffsetCmds[F],
-    guideCmds:           GuideCmds[F],
-    agCmds:              AGCmds[F],
-    gemsCmd:             GemsCmds[F],
-    altairCmds:          AltairCmds[F],
-    sequenceCmds:        SequenceCmds[F],
-    targetCmds:          TargetCmds[F],
-    wavelenghtCmds:      WavelengthCmds[F],
-    followCmds:          FollowCmds[F],
-    configCmds:          ConfigCmds[F],
-    nodchopCmds:         NodChopCmds[F],
-    carouselModeCmd:     CadRecord1[F],
-    mountCmds:           MountCmds[F],
-    rotatorCmds:         RotatorCmds[F],
-    defocusCmds:         DeFocusCmds[F],
-    pointingOriginCmds:  PointingOriginCmds[F],
-    probeGuideCmds:      ProbeGuideCmds[F]
-  ) extends TcsCommands[F]:
-    override def cads: List[CadRecord[F]] =
-      List(
+  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] =
+    for {
+      app  <- ApplyRecord.build(server, top + ApplySuffix)
+      carr <- CarRecord.build(server, top + CarSuffix)
+      wfsc <- TcsWfsCommands.build(server, top)
+      gtc  <- GuiderTrackCommands.build(server, top)
+      ofc  <- OffsetCmds.build(server, top)
+      gdc  <- GuideCmds.build(server, top)
+      agc  <- AGCmds.build(server, top)
+      gms  <- GemsCmds.build(server, top)
+      aoc  <- AltairCmds.build(server, top)
+      seqc <- SequenceCmds.build(server, top)
+      tgsc <- TargetCmds.build(server, top)
+      wvlc <- WavelengthCmds.build(server, top)
+      folc <- FollowCmds.build(server, top)
+      cfgc <- ConfigCmds.build(server, top)
+      ncc  <- NodChopCmds.build(server, top)
+      cm   <- CadRecord1.build(server, top + CarouselModeName)
+      mc   <- MountCmds.build(server, top)
+      rc   <- RotatorCmds.build(server, top)
+      df   <- DeFocusCmds.build(server, top)
+      po   <- PointingOriginCmds.build(server, top)
+      pg   <- ProbeGuideCmds.build(server, top)
+      pa   <- CadRecord4.build(server, top + PoAdjustName)
+    } yield new TcsCommands {
+      override val apply: ApplyRecord[F]                       = app
+      override val car: CarRecord[F]                           = carr
+      override val wfsCmds: TcsWfsCommands[F]                  = wfsc
+      override val guiderTrackCommands: GuiderTrackCommands[F] = gtc
+      override val offsetCmds: OffsetCmds[F]                   = ofc
+      override val guideCmds: GuideCmds[F]                     = gdc
+      override val agCmds: AGCmds[F]                           = agc
+      override val gemsCmd: GemsCmds[F]                        = gms
+      override val altairCmds: AltairCmds[F]                   = aoc
+      override val sequenceCmds: SequenceCmds[F]               = seqc
+      override val targetCmds: TargetCmds[F]                   = tgsc
+      override val wavelenghtCmds: WavelengthCmds[F]           = wvlc
+      override val followCmds: FollowCmds[F]                   = folc
+      override val configCmds: ConfigCmds[F]                   = cfgc
+      override val nodchopCmds: NodChopCmds[F]                 = ncc
+      override val carouselModeCmd: CadRecord1[F]              = cm
+      override val mountCmds: MountCmds[F]                     = mc
+      override val rotatorCmds: RotatorCmds[F]                 = rc
+      override val defocusCmds: DeFocusCmds[F]                 = df
+      override val pointingOriginCmds: PointingOriginCmds[F]   = po
+      override val probeGuideCmds: ProbeGuideCmds[F]           = pg
+      override val poAdjust: CadRecord4[F]                     = pa
+
+      override def cads: List[CadRecord[F]] = List(
         wfsCmds.cads,
         guiderTrackCommands.cads,
         offsetCmds.cads,
@@ -81,51 +107,7 @@ object TcsCommands {
         defocusCmds.cads,
         pointingOriginCmds.cads,
         probeGuideCmds.cads
-      ).flatten :+ carouselModeCmd
+      ).flatten :+ carouselModeCmd :+ poAdjust
 
-  def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] =
-    for {
-      apply <- ApplyRecord.build(server, top + ApplySuffix)
-      car   <- CarRecord.build(server, top + CarSuffix)
-      wfsc  <- WfsCommands.build(server, top)
-      gtc   <- GuiderTrackCommands.build(server, top)
-      ofc   <- OffsetCmds.build(server, top)
-      gdc   <- GuideCmds.build(server, top)
-      agc   <- AGCmds.build(server, top)
-      gms   <- GemsCmds.build(server, top)
-      aoc   <- AltairCmds.build(server, top)
-      seqc  <- SequenceCmds.build(server, top)
-      tgsc  <- TargetCmds.build(server, top)
-      wvlc  <- WavelengthCmds.build(server, top)
-      folc  <- FollowCmds.build(server, top)
-      cfgc  <- ConfigCmds.build(server, top)
-      ncc   <- NodChopCmds.build(server, top)
-      cm    <- CadRecord1.build(server, top + CarouselModeName)
-      mc    <- MountCmds.build(server, top)
-      rc    <- RotatorCmds.build(server, top)
-      df    <- DeFocusCmds.build(server, top)
-      po    <- PointingOriginCmds.build(server, top)
-      pg    <- ProbeGuideCmds.build(server, top)
-    } yield TcsCommandsImpl(apply,
-                            car,
-                            wfsc,
-                            gtc,
-                            ofc,
-                            gdc,
-                            agc,
-                            gms,
-                            aoc,
-                            seqc,
-                            tgsc,
-                            wvlc,
-                            folc,
-                            cfgc,
-                            ncc,
-                            cm,
-                            mc,
-                            rc,
-                            df,
-                            po,
-                            pg
-    )
+    }
 }

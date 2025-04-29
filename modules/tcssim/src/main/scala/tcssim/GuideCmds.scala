@@ -16,6 +16,7 @@ trait GuideCmds[F[_]] {
   val m2GuideMode: CadRecord2[F]
   val m2GuideConfig: CadRecord7[F]
   val m2GuideReset: CadRecord[F]
+  val probeGuideMode: CadRecord4[F]
 
   def cads: List[CadRecord[F]]
 }
@@ -29,28 +30,7 @@ object GuideCmds {
   val M2GuideModeSuffix: String   = "m2GuideMode"
   val M2GuideConfigSuffix: String = "m2GuideConfig"
   val M2GuideResetSuffix: String  = "m2GuideReset"
-
-  private case class GuideCmdsImpl[F[_]](
-    m1Guide:       CadRecord1[F],
-    m1GuideConfig: CadRecord4[F],
-    mountGuide:    CadRecord4[F],
-    crGuide:       CadRecord1[F],
-    m2Guide:       CadRecord1[F],
-    m2GuideMode:   CadRecord2[F],
-    m2GuideConfig: CadRecord7[F],
-    m2GuideReset:  CadRecord[F]
-  ) extends GuideCmds[F]:
-    override def cads: List[CadRecord[F]] =
-      List(
-        m1Guide,
-        m1GuideConfig,
-        mountGuide,
-        crGuide,
-        m2Guide,
-        m2GuideMode,
-        m2GuideConfig,
-        m2GuideReset
-      )
+  val ProbeGuideModeName: String  = "wfsGuideMode"
 
   def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, GuideCmds[F]] =
     for {
@@ -62,13 +42,28 @@ object GuideCmds {
       m2guidemode   <- CadRecord2.build(server, top + M2GuideModeSuffix)
       m2guideconfig <- CadRecord7.build(server, top + M2GuideConfigSuffix)
       m2guidereset  <- CadRecord.build(server, top + M2GuideResetSuffix)
-    } yield GuideCmdsImpl(m1guide,
-                          m1guideconfig,
-                          mountguide,
-                          crguide,
-                          m2guide,
-                          m2guidemode,
-                          m2guideconfig,
-                          m2guidereset
-    )
+      probeguide    <- CadRecord4.build(server, top + ProbeGuideModeName)
+    } yield new GuideCmds {
+      override val m1Guide: CadRecord1[F]        = m1guide
+      override val m1GuideConfig: CadRecord4[F]  = m1guideconfig
+      override val mountGuide: CadRecord4[F]     = mountguide
+      override val crGuide: CadRecord1[F]        = crguide
+      override val m2Guide: CadRecord1[F]        = m2guide
+      override val m2GuideMode: CadRecord2[F]    = m2guidemode
+      override val m2GuideConfig: CadRecord7[F]  = m2guideconfig
+      override val m2GuideReset: CadRecord[F]    = m2guidereset
+      override val probeGuideMode: CadRecord4[F] = probeguide
+
+      override def cads: List[CadRecord[F]] = List(
+        m1Guide,
+        m1GuideConfig,
+        mountGuide,
+        crGuide,
+        m2Guide,
+        m2GuideMode,
+        m2GuideConfig,
+        m2GuideReset,
+        probeGuideMode
+      )
+    }
 }

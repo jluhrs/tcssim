@@ -43,6 +43,8 @@ sealed trait TcsSad[F[_]] {
   val instrPA: MemoryPV1[F, Double]
   val airmass: Airmass[F]
   val m2UserOffset: MemoryPV1[F, Double]
+  val defocus: MemoryPV1[F, Double]
+  val nodState: MemoryPV1[F, String]
 }
 
 object TcsSad {
@@ -63,43 +65,7 @@ object TcsSad {
   val InstrPASuffix: String        = "instrPA.VAL"
   val M2UserOffsetSuffix: String   = "m2ZUserOffset.VAL"
   val DefocusSuffix: String        = "dtelFocus.VALB"
-
-  private case class TcsSadImpl[F[_]](
-    state:                 MemoryPV1[F, String],
-    health:                MemoryPV1[F, String],
-    heartbeat:             MemoryPV1[F, Int],
-    programID:             MemoryPV1[F, String],
-    trackingLimits:        TrackLimits[F],
-    targets:               AllTargets[F],
-    sourceADiffRA:         MemoryPV1[F, Double],
-    sourceADiffDec:        MemoryPV1[F, Double],
-    demands:               Demands[F],
-    currentCoords:         CurrentCoords[F],
-    rotTrackFrame:         MemoryPV1[F, String],
-    domeVignette:          DomeVignette[F],
-    times:                 Times[F],
-    astCtx:                MemoryPV[F, Double],
-    telCoords:             TelescopeCoords[F],
-    probeLimits:           ProbeLimits[F],
-    rawTargets:            RawTargets[F],
-    inPosition:            MemoryPV1[F, String],
-    virtualGuidersMap:     VirtualGuidersMap[F],
-    guidersTrackingConfig: NDGuidersTrackConfig[F],
-    follows:               FollowStat[F],
-    parAngle:              MemoryPV1[F, Double],
-    agInPosCalc:           MemoryPV1[F, Double],
-    altair:                AltairStat[F],
-    guide:                 GuideStat[F],
-    nodChopStat:           NodChopStat[F],
-    agStat:                AGStat[F],
-    odgwParkStat:          OdgwPark[F],
-    offsetStat:            OffsetStat[F],
-    instrAA:               MemoryPV1[F, Double],
-    instrPA:               MemoryPV1[F, Double],
-    airmass:               Airmass[F],
-    m2UserOffset:          MemoryPV1[F, Double],
-    defcous:               MemoryPV1[F, Double]
-  ) extends TcsSad[F]
+  val NodStateName: String         = "nodState.VAL"
 
   def build[F[_]](server: EpicsServer[F], top: String): Resource[F, TcsSad[F]] = for {
     st    <- server.createPV1(top + SadPrefix + StateSuffix, "RUNNING")
@@ -119,7 +85,7 @@ object TcsSad {
     tcoo  <- TelescopeCoords.build(server, top + SadPrefix)
     prl   <- ProbeLimits.build(server, top + SadPrefix)
     rts   <- RawTargets.build(server, top + SadPrefix)
-    inp   <- server.createPV1(top + SadPrefix + InPositionSuffix, "FALSE")
+    inp   <- server.createPV1(top + SadPrefix + InPositionSuffix, "TRUE")
     vgm   <- VirtualGuidersMap.build(server, top)
     gtc   <- NDGuidersTrackConfig.build(server, top)
     fls   <- FollowStat.build(server, top)
@@ -136,39 +102,42 @@ object TcsSad {
     am    <- Airmass.build(server, top + SadPrefix)
     m2of  <- server.createPV1(top + SadPrefix + M2UserOffsetSuffix, 0.0)
     df    <- server.createPV1(top + DefocusSuffix, 0.0)
-  } yield TcsSadImpl(st,
-                     hlt,
-                     hb,
-                     pid,
-                     tl,
-                     ts,
-                     dra,
-                     ddec,
-                     dms,
-                     ccs,
-                     rtf,
-                     dv,
-                     t,
-                     actx,
-                     tcoo,
-                     prl,
-                     rts,
-                     inp,
-                     vgm,
-                     gtc,
-                     fls,
-                     pa,
-                     agip,
-                     altr,
-                     gdst,
-                     ncst,
-                     agst,
-                     odprk,
-                     offs,
-                     iaa,
-                     ipa,
-                     am,
-                     m2of,
-                     df
-  )
+    ns    <- server.createPV1(top + SadPrefix + NodStateName, "A")
+  } yield new TcsSad {
+    override val state: MemoryPV1[F, String]                    = st
+    override val health: MemoryPV1[F, String]                   = hlt
+    override val heartbeat: MemoryPV1[F, Int]                   = hb
+    override val programID: MemoryPV1[F, String]                = pid
+    override val trackingLimits: TrackLimits[F]                 = tl
+    override val targets: AllTargets[F]                         = ts
+    override val sourceADiffRA: MemoryPV1[F, Double]            = dra
+    override val sourceADiffDec: MemoryPV1[F, Double]           = ddec
+    override val demands: Demands[F]                            = dms
+    override val currentCoords: CurrentCoords[F]                = ccs
+    override val rotTrackFrame: MemoryPV1[F, String]            = rtf
+    override val domeVignette: DomeVignette[F]                  = dv
+    override val times: Times[F]                                = t
+    override val astCtx: MemoryPV[F, Double]                    = actx
+    override val telCoords: TelescopeCoords[F]                  = tcoo
+    override val probeLimits: ProbeLimits[F]                    = prl
+    override val rawTargets: RawTargets[F]                      = rts
+    override val inPosition: MemoryPV1[F, String]               = inp
+    override val virtualGuidersMap: VirtualGuidersMap[F]        = vgm
+    override val guidersTrackingConfig: NDGuidersTrackConfig[F] = gtc
+    override val follows: FollowStat[F]                         = fls
+    override val parAngle: MemoryPV1[F, Double]                 = pa
+    override val agInPosCalc: MemoryPV1[F, Double]              = agip
+    override val altair: AltairStat[F]                          = altr
+    override val guide: GuideStat[F]                            = gdst
+    override val nodChopStat: NodChopStat[F]                    = ncst
+    override val agStat: AGStat[F]                              = agst
+    override val odgwParkStat: OdgwPark[F]                      = odprk
+    override val offsetStat: OffsetStat[F]                      = offs
+    override val instrAA: MemoryPV1[F, Double]                  = iaa
+    override val instrPA: MemoryPV1[F, Double]                  = ipa
+    override val airmass: Airmass[F]                            = am
+    override val m2UserOffset: MemoryPV1[F, Double]             = m2of
+    override val defocus: MemoryPV1[F, Double]                  = df
+    override val nodState: MemoryPV1[F, String]                 = ns
+  }
 }
