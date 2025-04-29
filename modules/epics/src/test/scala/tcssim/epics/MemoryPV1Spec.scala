@@ -18,7 +18,7 @@ class MemoryPV1Spec extends CatsEffectSuite {
 
   private given Logger[IO] = NoOpLogger.impl[IO]
 
-  private val epicsServer = ResourceFixture {
+  private val epicsServer = ResourceFunFixture {
     for {
       d <- Dispatcher.parallel[IO]
       s <- EpicsServer.start(d)

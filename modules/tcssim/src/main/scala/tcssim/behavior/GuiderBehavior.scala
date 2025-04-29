@@ -14,12 +14,12 @@ import tcssim.CadRecord
 import tcssim.GuideCmds
 import tcssim.GuideStat
 import tcssim.TcsEpicsDB
-import tcssim.WfsCommands
+import tcssim.TcsWfsCommands
 import tcssim.epics.MemoryPV1
 
 case class GuiderBehavior[F[_]: Monad: Parallel](
   guideCmdGetter: Getter[TcsEpicsDB[F], GuideCmds[F]],
-  wfsCmdGetter:   Getter[TcsEpicsDB[F], WfsCommands[F]],
+  wfsCmdGetter:   Getter[TcsEpicsDB[F], TcsWfsCommands[F]],
   statusGetter:   Getter[TcsEpicsDB[F], GuideStat[F]]
 ) extends Behavior[F] {
   override def process(db: TcsEpicsDB[F]): F[Unit] = List(
@@ -47,6 +47,15 @@ case class GuiderBehavior[F[_]: Monad: Parallel](
           case "Off" => BinaryOnOff.Off.some
           case _     => none
         }.map(statusGetter.get(db).m1GuideState.put)
+          .getOrElse(Applicative[F].unit)
+      ),
+    guideCmdGetter
+      .get(db)
+      .m1GuideConfig
+      .inputB
+      .getOption
+      .flatMap(
+        _.map(statusGetter.get(db).m1GuideConfig.put)
           .getOrElse(Applicative[F].unit)
       ),
     wfs(wfsCmdGetter.get(db).pwfs1.observe,

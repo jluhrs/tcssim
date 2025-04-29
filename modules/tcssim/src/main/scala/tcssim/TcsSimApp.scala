@@ -11,12 +11,14 @@ import cats.effect.std.Dispatcher
 import cats.implicits.catsSyntaxEq
 import cats.syntax.all.*
 import fs2.Stream
+import mouse.boolean.*
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import tcssim.behavior.Behavior
 import tcssim.behavior.GuiderBehavior
 import tcssim.behavior.TargetBehavior
 import tcssim.epics.EpicsServer
+import tcssim.epics.MemoryPV1
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.duration.FiniteDuration
@@ -27,25 +29,56 @@ object TcsSimApp extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] = {
     val r = for {
-      _   <- Resource.eval(printBanner)
-      dsp <- Dispatcher.parallel[IO]
-      srv <- EpicsServer.start[IO](dsp)
-      tcs <- TcsEpicsDB.build(srv, "tc1:")
-      ag  <- AGEpicsDB.build(srv, "ag:")
-    } yield (tcs, ag)
+      _    <- Resource.eval(printBanner)
+      dsp  <- Dispatcher.parallel[IO]
+      srv  <- EpicsServer.start[IO](dsp)
+      tcs  <- TcsEpicsDB.build(srv, "tc1:")
+      ag   <- AGEpicsDB.build(srv, "ag:")
+      crcs <- BaseSystemDB.build(srv, "cr:")
+      mcs  <- BaseSystemDB.build(srv, "mc:")
+      scs  <- BaseSystemDB.build(srv, "m2:")
+      p1   <- WfsDB.build(
+                srv,
+                "pwfs1:",
+                "dc:fgDiag6P1.VALH",
+                "dc:fgDiag1P1.VALB"
+              )
+      p2   <- WfsDB.build(
+                srv,
+                "pwfs2:",
+                "dc:fgDiag1P2.VALQ",
+                "dc:fgDiag1P2.VALB"
+              )
+      oi   <- WfsDB.build(
+                srv,
+                "oiwfs:",
+                "dc:fgDiag1P2.VALQ",
+                "dc:fgDiag1P2.VALB",
+                "dc:initSigInitFgGain.PROC",
+                "dc:seeing.VAL"
+              )
+      ac   <- AcDB.build(srv, "hrwfs:")
+      ret  <- List(
+                tcs.process,
+                tcs.commands.apply.DIR.valueStream
+                  .map(_.evalMap(_.map(carActivity(tcs)).getOrElse(IO.unit)))
+                  .map(List(_)),
+                fullInpositionActivity(tcs, mcs, crcs).map(List(_)),
+                ag.process,
+                crcs.process,
+                mcs.process,
+                scs.process,
+                p1.process,
+                p2.process,
+                oi.process,
+                ac.process
+              ).sequence
+    } yield ret.flatten
 
-    r.use(process.tupled).as(ExitCode.Success)
+    r.use(
+      Stream.emits[IO, Stream[IO, Unit]](_).parJoinUnbounded.compile.drain
+    ).as(ExitCode.Success)
   }
-
-  def process(tcs: TcsEpicsDB[IO], ag: AGEpicsDB[IO]): IO[Unit] =
-    (tcs.process,
-     tcs.commands.apply.DIR.valueStream.map(_.evalMap(_.map(carActivity(tcs)).getOrElse(IO.unit))),
-     ag.process
-    )
-      .mapN((a: List[Stream[IO, Unit]], b: Stream[IO, Unit], c: List[Stream[IO, Unit]]) =>
-        b :: (a ::: c)
-      )
-      .use(Stream.emits[IO, Stream[IO, Unit]](_).parJoinUnbounded.compile.drain)
 
   val BusyTime: FiniteDuration = 1.seconds
 
@@ -65,6 +98,47 @@ object TcsSimApp extends IOApp {
         _    <- db.commands.car.VAL.put(CarState.IDLE)
       } yield ()
     else IO.unit
+
+  def singleFollowActivity(
+    str:    Stream[IO, Boolean],
+    status: MemoryPV1[IO, String]
+  ): Stream[IO, Boolean] =
+    str.flatTap(v => Stream.eval(status.put(v.fold("On", "Off"))))
+
+  def allFollowActivity(
+    db:   TcsEpicsDB[IO],
+    mcs:  BaseSystemDB[IO],
+    crcs: BaseSystemDB[IO]
+  ): Resource[IO, Stream[IO, Unit]] = for {
+    mnt <- db.commands.followCmds.mount.inputA.valueStream
+    crs <- db.commands.followCmds.rotator.inputA.valueStream
+  } yield Stream
+    .emits(
+      List(
+        singleFollowActivity(mnt.map(_.exists(_.toUpperCase === "ON")), mcs.status.followS),
+        singleFollowActivity(crs.map(_.exists(_.toUpperCase === "ON")), crcs.status.followS)
+      )
+    )
+    .parJoinUnbounded
+    .void
+
+  def fullInpositionActivity(
+    db:   TcsEpicsDB[IO],
+    mcs:  BaseSystemDB[IO],
+    crcs: BaseSystemDB[IO]
+  ): Resource[IO, Stream[IO, Unit]] =
+    allFollowActivity(db, mcs, crcs).map(
+      _.flatMap(_ =>
+        Stream.eval(
+          List(mcs.status.followS.getOption, crcs.status.followS.getOption).sequence
+            .flatMap(v =>
+              db.status.inPosition.put(
+                v.exists(_.exists(_.toUpperCase === "ON")).fold("TRUE", "FALSE")
+              )
+            )
+        )
+      )
+    )
 
   def printBanner[F[_]: Logger]: F[Unit] = {
     val banner = """
