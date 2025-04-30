@@ -9,9 +9,9 @@ import cats.effect.IOApp
 import cats.effect.Resource
 import cats.effect.std.Dispatcher
 import cats.implicits.catsSyntaxEq
-import cats.syntax.all.*
+import cats.syntax.all._
 import fs2.Stream
-import mouse.boolean.*
+import mouse.boolean._
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import tcssim.behavior.Behavior
