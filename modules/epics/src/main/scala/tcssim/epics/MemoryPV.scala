@@ -34,7 +34,7 @@ object MemoryPV {
     def fromEpicsValue(v:  Dbr): Array[T]
     def extractOption(dbr: DBR): Option[Array[T]]
     def initValue(v:       Array[T]): Object = v
-    val enumLabels: Array[String] = Array.empty
+    val enumLabels: Array[String]            = Array.empty
   }
 
   def build[F[_]: Async, T](server: DefaultServerImpl, name: String, init: Array[T])(implicit
