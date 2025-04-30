@@ -7,7 +7,7 @@ import cats.effect.Async
 import cats.effect.Resource
 import cats.effect.std.Dispatcher
 import cats.effect.std.Queue
-import cats.syntax.all._
+import cats.syntax.all.*
 import com.cosylab.epics.caj.cas.ProcessVariableEventDispatcher
 import com.cosylab.epics.caj.cas.util.DefaultServerImpl
 import com.cosylab.epics.caj.cas.util.MemoryProcessVariable
@@ -34,7 +34,7 @@ object MemoryPV {
     def fromEpicsValue(v:  Dbr): Array[T]
     def extractOption(dbr: DBR): Option[Array[T]]
     def initValue(v:       Array[T]): Object = v
-    val enumLabels: Array[String] = Array.empty
+    val enumLabels: Array[String]            = Array.empty
   }
 
   def build[F[_]: Async, T](server: DefaultServerImpl, name: String, init: Array[T])(implicit

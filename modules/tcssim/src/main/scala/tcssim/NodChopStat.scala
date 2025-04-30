@@ -8,7 +8,7 @@ import tcssim.epics.EpicsServer
 import tcssim.epics.MemoryPV1
 import tcssim.epics.given
 
-import Beam._
+import Beam.*
 
 trait NodChopStat[F[_]] {
   val nodState: MemoryPV1[F, String]

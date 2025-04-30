@@ -9,7 +9,7 @@ import tcssim.epics.EpicsServer
 import tcssim.epics.MemoryPV1
 import tcssim.epics.given
 
-import CadUtil._
+import CadUtil.*
 
 trait CadRecord1[F[_]] extends CadRecord[F] {
   val inputA: MemoryPV1[F, String]

@@ -6,7 +6,7 @@ package tcssim.epics
 import cats.effect.Async
 import cats.effect.Resource
 import cats.effect.std.Dispatcher
-import cats.effect.syntax.all._
+import cats.effect.syntax.all.*
 import com.cosylab.epics.caj.cas.util.DefaultServerImpl
 import gov.aps.jca.JCALibrary
 import org.typelevel.log4cats.Logger

@@ -4,7 +4,7 @@
 package tcssim
 
 import cats.effect.Resource
-import tcssim.epics._
+import tcssim.epics.*
 import tcssim.epics.given
 
 trait CarRecord[F[_]] {

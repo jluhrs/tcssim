@@ -5,7 +5,7 @@ package tcssim.epics
 
 import cats.effect.IO
 import cats.effect.std.Dispatcher
-import cats.syntax.all._
+import cats.syntax.all.*
 import munit.CatsEffectSuite
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.noop.NoOpLogger
