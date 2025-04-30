@@ -4,12 +4,12 @@
 package tcssim
 
 import cats.effect.kernel.Resource
-import tcssim.BinaryEnabledDisabled._
+import tcssim.BinaryEnabledDisabled.*
 import tcssim.epics.EpicsServer
 import tcssim.epics.MemoryPV1
 import tcssim.epics.given
 
-import epics._
+import epics.*
 
 trait FollowStat[F[_]] {
   val rotator: MemoryPV1[F, Int]

@@ -6,7 +6,7 @@ package tcssim.behavior
 import cats.Applicative
 import cats.Monad
 import cats.Parallel
-import cats.syntax.all._
+import cats.syntax.all.*
 import monocle.Getter
 import tcssim.BinaryOnOff
 import tcssim.BinaryYesNo

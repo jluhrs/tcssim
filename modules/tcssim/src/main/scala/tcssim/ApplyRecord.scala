@@ -4,10 +4,10 @@
 package tcssim
 
 import cats.effect.Resource
-import tcssim.epics._
+import tcssim.epics.*
 import tcssim.epics.given
 
-import CadDirective._
+import CadDirective.*
 
 trait ApplyRecord[F[_]] extends Product with Serializable {
   val DIR: MemoryPV1[F, CadDirective]

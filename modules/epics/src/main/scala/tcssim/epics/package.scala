@@ -3,8 +3,8 @@
 
 package tcssim
 
-import cats.syntax.all._
-import gov.aps.jca.dbr._
+import cats.syntax.all.*
+import gov.aps.jca.dbr.*
 import lucuma.core.util.Enumerated
 import tcssim.epics.MemoryPV.ToDBRType
 

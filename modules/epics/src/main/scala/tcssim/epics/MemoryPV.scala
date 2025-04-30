@@ -7,7 +7,7 @@ import cats.effect.Async
 import cats.effect.Resource
 import cats.effect.std.Dispatcher
 import cats.effect.std.Queue
-import cats.syntax.all._
+import cats.syntax.all.*
 import com.cosylab.epics.caj.cas.ProcessVariableEventDispatcher
 import com.cosylab.epics.caj.cas.util.DefaultServerImpl
 import com.cosylab.epics.caj.cas.util.MemoryProcessVariable

@@ -8,8 +8,8 @@ import tcssim.epics.EpicsServer
 import tcssim.epics.MemoryPV1
 import tcssim.epics.given
 
-import BinaryOnOff._
-import BinaryYesNo._
+import BinaryOnOff.*
+import BinaryYesNo.*
 
 trait GuideStat[F[_]] {
   val pwfs1: MemoryPV1[F, String]
