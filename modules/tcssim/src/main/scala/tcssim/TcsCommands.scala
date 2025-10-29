@@ -30,15 +30,43 @@ trait TcsCommands[F[_]] {
   val pointingOriginCmds: PointingOriginCmds[F]
   val probeGuideCmds: ProbeGuideCmds[F]
   val poAdjust: CadRecord4[F]
+  val poOffsetAbsorb: CadRecord2[F]
+  val poOffsetClear: CadRecord2[F]
+  val targetAdjust: CadRecord4[F]
+  val targetOffsetAbsorb: CadRecord2[F]
+  val targetOffsetClear: CadRecord2[F]
+  val pointingAdjust: CadRecord4[F]
+  val pointingConfig: CadRecord4[F]
+  val absorbGuide: CadRecord[F]
+  val zeroGuide: CadRecord[F]
+  val instrumentOffset: CadRecord2[F]
+  val azimuthWrap: CadRecord1[F]
+  val rotatorWrap: CadRecord1[F]
+  val zeroRotatorGuide: CadRecord[F]
+  val oiwfsSelect: CadRecord2[F]
 
   def cads: List[CadRecord[F]]
 }
 
 object TcsCommands {
-  val ApplySuffix: String      = "apply"
-  val CarSuffix: String        = "applyC"
-  val CarouselModeName: String = "carouselMode"
-  val PoAdjustName: String     = "poAdjust"
+  val ApplySuffix: String          = "apply"
+  val CarSuffix: String            = "applyC"
+  val CarouselModeName: String     = "carouselMode"
+  val PoAdjustName: String         = "poAdjust"
+  val TargetAdjustName: String     = "targetAdjust"
+  val PointingAdjustName: String   = "collAdjust"
+  val TargetAbsorbName: String     = "absorb"
+  val TargetClearName: String      = "clear"
+  val OriginAbsorbName: String     = "absorbPo"
+  val OriginClearName: String      = "clearPo"
+  val PointingConfigName: String   = "pointParam"
+  val AbsorbGuideName: String      = "absorbGuide"
+  val ZeroGuideName: String        = "zeroGuide"
+  val AzWrapName: String           = "azwrap"
+  val RotWrapName: String          = "rotwrap"
+  val ZeroRotGuideName: String     = "zeroRotGuide"
+  val InstrumentOffsetName: String = "offsetPoA1"
+  val OiwfsSelectName: String      = "oiwfsSelect"
 
   def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] =
     for {
@@ -63,7 +91,21 @@ object TcsCommands {
       df   <- DeFocusCmds.build(server, top)
       po   <- PointingOriginCmds.build(server, top)
       pg   <- ProbeGuideCmds.build(server, top)
-      pa   <- CadRecord4.build(server, top + PoAdjustName)
+      poa  <- CadRecord4.build(server, top + PoAdjustName)
+      ta   <- CadRecord4.build(server, top + TargetAdjustName)
+      pta  <- CadRecord4.build(server, top + PointingAdjustName)
+      toa  <- CadRecord2.build(server, top + TargetAbsorbName)
+      toc  <- CadRecord2.build(server, top + TargetClearName)
+      pooa <- CadRecord2.build(server, top + OriginAbsorbName)
+      pooc <- CadRecord2.build(server, top + OriginClearName)
+      pcfg <- CadRecord4.build(server, s"${top}$PointingConfigName")
+      abg  <- CadRecord.build(server, s"${top}$AbsorbGuideName")
+      zrg  <- CadRecord.build(server, s"${top}$ZeroGuideName")
+      inso <- CadRecord2.build(server, s"${top}$InstrumentOffsetName")
+      azwr <- CadRecord1.build(server, s"${top}$AzWrapName")
+      rtwr <- CadRecord1.build(server, s"${top}$RotWrapName")
+      zrg  <- CadRecord.build(server, s"${top}$ZeroRotGuideName")
+      ois  <- CadRecord2.build(server, s"${top}$OiwfsSelectName")
     } yield new TcsCommands {
       override val apply: ApplyRecord[F]                       = app
       override val car: CarRecord[F]                           = carr
@@ -86,7 +128,21 @@ object TcsCommands {
       override val defocusCmds: DeFocusCmds[F]                 = df
       override val pointingOriginCmds: PointingOriginCmds[F]   = po
       override val probeGuideCmds: ProbeGuideCmds[F]           = pg
-      override val poAdjust: CadRecord4[F]                     = pa
+      override val poAdjust: CadRecord4[F]                     = poa
+      override val targetAdjust: CadRecord4[F]                 = ta
+      override val pointingAdjust: CadRecord4[F]               = pta
+      override val poOffsetAbsorb: CadRecord2[F]               = pooa
+      override val poOffsetClear: CadRecord2[F]                = pooc
+      override val targetOffsetAbsorb: CadRecord2[F]           = toa
+      override val targetOffsetClear: CadRecord2[F]            = toc
+      override val pointingConfig: CadRecord4[F]               = pcfg
+      override val absorbGuide: CadRecord[F]                   = abg
+      override val zeroGuide: CadRecord[F]                     = zrg
+      override val instrumentOffset: CadRecord2[F]             = inso
+      override val azimuthWrap: CadRecord1[F]                  = azwr
+      override val rotatorWrap: CadRecord1[F]                  = rtwr
+      override val zeroRotatorGuide: CadRecord[F]              = zrg
+      override val oiwfsSelect: CadRecord2[F]                  = ois
 
       override def cads: List[CadRecord[F]] = List(
         wfsCmds.cads,
@@ -107,7 +163,24 @@ object TcsCommands {
         defocusCmds.cads,
         pointingOriginCmds.cads,
         probeGuideCmds.cads
-      ).flatten :+ carouselModeCmd :+ poAdjust
+      ).flatten ++ List(
+        carouselModeCmd,
+        poAdjust,
+        targetAdjust,
+        pointingAdjust,
+        poOffsetAbsorb,
+        poOffsetClear,
+        targetOffsetAbsorb,
+        targetOffsetClear,
+        pointingConfig,
+        absorbGuide,
+        zeroGuide,
+        instrumentOffset,
+        azimuthWrap,
+        rotatorWrap,
+        zeroRotatorGuide,
+        oiwfsSelect
+      )
 
     }
 }
