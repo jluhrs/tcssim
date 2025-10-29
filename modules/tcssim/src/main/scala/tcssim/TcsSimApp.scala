@@ -49,13 +49,9 @@ object TcsSimApp extends IOApp {
                 "dc:fgDiag1P2.VALQ",
                 "dc:fgDiag1P2.VALB"
               )
-      oi   <- WfsDB.build(
+      oi   <- OiwfsDB.build(
                 srv,
-                "oiwfs:",
-                "dc:fgDiag1P2.VALQ",
-                "dc:fgDiag1P2.VALB",
-                "dc:initSigInitFgGain.PROC",
-                "dc:seeing.VAL"
+                "oiwfs:"
               )
       ac   <- AcDB.build(srv, "hrwfs:")
       ret  <- List(
@@ -64,7 +60,6 @@ object TcsSimApp extends IOApp {
                   .map(_.evalMap(_.map(carActivity(tcs)).getOrElse(IO.unit)))
                   .map(List(_)),
                 fullInpositionActivity(tcs, mcs, crcs).map(List(_)),
-                ag.process,
                 crcs.process,
                 mcs.process,
                 scs.process,
