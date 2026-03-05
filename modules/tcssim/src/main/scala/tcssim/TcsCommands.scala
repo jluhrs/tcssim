@@ -44,6 +44,10 @@ trait TcsCommands[F[_]] {
   val rotatorWrap: CadRecord1[F]
   val zeroRotatorGuide: CadRecord[F]
   val oiwfsSelect: CadRecord2[F]
+  val chopConfig: CadRecord4[F]
+  val chopRelative: CadRecord4[F]
+  val baffles: CadRecord2[F]
+  val wfsGuideMode: CadRecord12[F]
 
   def cads: List[CadRecord[F]]
 }
@@ -67,6 +71,10 @@ object TcsCommands {
   val ZeroRotGuideName: String     = "zeroRotGuide"
   val InstrumentOffsetName: String = "offsetPoA1"
   val OiwfsSelectName: String      = "oiwfsSelect"
+  val ChopConfigName: String       = "chopConfig"
+  val ChopRelativeName: String     = "chopRelative"
+  val BafflesName: String          = "m2Baffle"
+  val WfsGuideModeName: String     = "wfsGuideMode"
 
   def build[F[_]: Monad](server: EpicsServer[F], top: String): Resource[F, TcsCommands[F]] =
     for {
@@ -106,6 +114,10 @@ object TcsCommands {
       rtwr <- CadRecord1.build(server, s"${top}$RotWrapName")
       zrg  <- CadRecord.build(server, s"${top}$ZeroRotGuideName")
       ois  <- CadRecord2.build(server, s"${top}$OiwfsSelectName")
+      chC  <- CadRecord4.build(server, s"${top}$ChopConfigName")
+      chR  <- CadRecord4.build(server, s"${top}$ChopRelativeName")
+      bf   <- CadRecord2.build(server, s"${top}$BafflesName")
+      gm   <- CadRecord12.build(server, s"${top}$WfsGuideModeName")
     } yield new TcsCommands {
       override val apply: ApplyRecord[F]                       = app
       override val car: CarRecord[F]                           = carr
@@ -143,6 +155,10 @@ object TcsCommands {
       override val rotatorWrap: CadRecord1[F]                  = rtwr
       override val zeroRotatorGuide: CadRecord[F]              = zrg
       override val oiwfsSelect: CadRecord2[F]                  = ois
+      override val chopConfig: CadRecord4[F]                   = chC
+      override val chopRelative: CadRecord4[F]                 = chR
+      override val baffles: CadRecord2[F]                      = bf
+      override val wfsGuideMode: CadRecord12[F]                = gm
 
       override def cads: List[CadRecord[F]] = List(
         wfsCmds.cads,
@@ -179,7 +195,11 @@ object TcsCommands {
         azimuthWrap,
         rotatorWrap,
         zeroRotatorGuide,
-        oiwfsSelect
+        oiwfsSelect,
+        chopConfig,
+        chopRelative,
+        baffles,
+        wfsGuideMode
       )
 
     }

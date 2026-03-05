@@ -6,13 +6,15 @@ package tcssim.behavior
 import cats.Monad
 import tcssim.TcsEpicsDB
 
-class FollowsBehavior[F[_]: Monad] extends Behavior[F] {
+object FollowsBehavior {
+  def build[F[_]: Monad](db: TcsEpicsDB[F]): Behavior[F] = new Behavior[F] {
 
-  override def process(db: TcsEpicsDB[F]): F[Unit] = Monad[F].unit
-//    for {
-//      prk <- db.commands.mountCmds.park.MARK.getOption
-//      flm <- db.commands.followCmds.mount.MARK.getOption
-//      fl  <- db.commands.followCmds.mount.inputA.getOption
-//      _ <- prk.flatMap((_ === 1).fold())
-//    } yield ()
+    override def process: F[Unit] = Monad[F].unit
+    //    for {
+    //      prk <- db.commands.mountCmds.park.MARK.getOption
+    //      flm <- db.commands.followCmds.mount.MARK.getOption
+    //      fl  <- db.commands.followCmds.mount.inputA.getOption
+    //      _ <- prk.flatMap((_ === 1).fold())
+    //    } yield ()
+  }
 }

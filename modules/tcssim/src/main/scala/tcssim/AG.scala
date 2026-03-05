@@ -32,6 +32,7 @@ private case class AG[F[_]](
   p2ProbeParked: MemoryPV1[F, Int],
   p2FollowS:     MemoryPV1[F, String],
   aoName:        MemoryPV1[F, String],
+  hwName:        MemoryPV1[F, String],
   sfName:        MemoryPV1[F, String],
   sfParked:      MemoryPV1[F, Int],
   hwParked:      MemoryPV1[F, Int],
@@ -62,6 +63,7 @@ object AG {
   val GpiSuffix: String           = "gpi.VAL"
   val GhostSuffix: String         = "ghost.VAL"
   val AONameSuffix: String        = "aoName.VAL"
+  val HWNameSuffix: String        = "hwName.VAL"
   val SFNameSuffix: String        = "sfName.VAL"
   val SFParkedSuffix: String      = "sfParked.VAL"
   val HWParkedSuffix: String      = "hwParked.VAL"
@@ -91,6 +93,7 @@ object AG {
     gpi           <- server.createPV1(top + PortSuffix + GpiSuffix, 0)
     ghost         <- server.createPV1(top + PortSuffix + GhostSuffix, 0)
     aoName        <- server.createPV1(top + AONameSuffix, "")
+    hwName        <- server.createPV1(top + HWNameSuffix, "")
     sfName        <- server.createPV1(top + SFNameSuffix, "")
     oiName        <- server.createPV1(top + OISuffix + OINameSuffix, "OIWFS")
     oiProbeParked <- server.createPV1(top + OISuffix + OIProbeParkedSuffix, 0)
@@ -131,6 +134,7 @@ object AG {
     p2ProbeParked,
     p2FollowS,
     aoName,
+    hwName,
     sfName,
     sfParked,
     hwParked,
